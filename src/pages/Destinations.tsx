@@ -27,11 +27,13 @@ const Destinations = () => {
 
   const fetchDestinations = async () => {
     try {
-      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/destinations');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
+      const response = await fetch(`${apiUrl}/public/destinations`);
       const data = await response.json();
       
       // Transform API data to match frontend format
       const transformed = data.map((dest: any) => ({
+        id: dest.id,
         name: dest.name,
         country: dest.country || dest.category,
         region: dest.category,
@@ -125,7 +127,7 @@ const Destinations = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {filtered.map((dest, i) => (
                 <motion.div
-                  key={dest.name}
+                  key={dest.id || dest.name}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}

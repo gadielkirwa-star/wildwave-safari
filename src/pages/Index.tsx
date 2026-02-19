@@ -84,6 +84,7 @@ const Index = () => {
         if (Array.isArray(destData) && destData.length > 0) {
           // Transform API destinations to match display format
           const apiDestinations = destData.slice(0, 6).map((dest: any) => ({
+            id: dest.id,
             name: dest.name,
             country: dest.country || dest.category,
             image: dest.image_url,
@@ -104,6 +105,7 @@ const Index = () => {
         if (Array.isArray(pkgData) && pkgData.length > 0) {
           // Transform API packages to match display format
           const apiPackages = pkgData.slice(0, 4).map((pkg: any) => ({
+            id: pkg.id,
             name: pkg.name,
             duration: pkg.duration,
             price: `From $${pkg.price}`,
@@ -274,7 +276,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {destinations.map((dest, i) => (
               <motion.div
-                key={dest.name}
+                key={dest.id || dest.name}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -315,7 +317,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {packages.map((pkg, i) => (
               <motion.div
-                key={pkg.name}
+                key={pkg.id || pkg.name}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}

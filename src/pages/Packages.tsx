@@ -22,7 +22,8 @@ const Packages = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/packages');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
+      const response = await fetch(`${apiUrl}/public/packages`);
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
