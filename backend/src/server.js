@@ -18,27 +18,13 @@ const allowedOrigins = rawOrigins.split(',').map((s) => s.trim()).filter(Boolean
 
 // Temporarily allow all origins to ensure CORS headers are present for deployed frontends.
 // In production you can restrict this by setting `CORS_ORIGIN` and validating the origin.
+// For now allow any origin so frontends can access the API. Remove or restrict
+// this for stricter production CORS policies.
 app.use(cors({
-  origin: true,
-  credentials: true,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
-// Explicit CORS middleware: set headers when origin is allowed and handle preflight
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.indexOf(origin) !== -1) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(204);
-    }
-  }
-  next();
-});
 app.use(express.json());
 
 // Health check
