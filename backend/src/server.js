@@ -16,18 +16,10 @@ const PORT = process.env.PORT || 5000;
 const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:8080,http://localhost:5173';
 const allowedOrigins = rawOrigins.split(',').map((s) => s.trim()).filter(Boolean);
 
+// Temporarily allow all origins to ensure CORS headers are present for deployed frontends.
+// In production you can restrict this by setting `CORS_ORIGIN` and validating the origin.
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow non-browser requests like curl/postman (no origin)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    }
-    // If origin is not allowed, do not throw an error - silently decline CORS.
-    // Returning callback(null, false) tells the CORS middleware not to set CORS headers.
-    // This avoids triggering Express error handling (500) while still preventing cross-origin access.
-    return callback(null, false);
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
