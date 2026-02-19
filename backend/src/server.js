@@ -23,7 +23,10 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       return callback(null, true);
     }
-    return callback(new Error('Not allowed by CORS'));
+    // If origin is not allowed, do not throw an error - silently decline CORS.
+    // Returning callback(null, false) tells the CORS middleware not to set CORS headers.
+    // This avoids triggering Express error handling (500) while still preventing cross-origin access.
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
