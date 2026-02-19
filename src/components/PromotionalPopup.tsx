@@ -11,7 +11,11 @@ export default function PromotionalPopup() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/promotions')
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
+        const response = await fetch(`${apiUrl}/public/promotions`)
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch promotions`)
+        }
         const data = await response.json()
         console.log('Promotions data:', data)
         if (data && data.length > 0) {

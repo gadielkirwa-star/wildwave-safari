@@ -77,8 +77,9 @@ const Index = () => {
 
   const fetchDestinationsAndPackages = async () => {
     try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
       // Fetch destinations from API
-      const destResponse = await fetch('https://wildwave-safaris-api.onrender.com/api/public/destinations');
+      const destResponse = await fetch(`${apiUrl}/public/destinations`);
       if (destResponse.ok) {
         const destData = await destResponse.json();
         if (Array.isArray(destData) && destData.length > 0) {
@@ -99,7 +100,7 @@ const Index = () => {
 
     try {
       // Fetch packages from API
-      const pkgResponse = await fetch('https://wildwave-safaris-api.onrender.com/api/public/packages');
+      const pkgResponse = await fetch(`${apiUrl}/public/packages`);
       if (pkgResponse.ok) {
         const pkgData = await pkgResponse.json();
         if (Array.isArray(pkgData) && pkgData.length > 0) {

@@ -14,7 +14,8 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/blogs');
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
+        const response = await fetch(`${apiUrl}/public/blogs`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

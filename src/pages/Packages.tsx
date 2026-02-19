@@ -25,7 +25,8 @@ const Packages = () => {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
       const response = await fetch(`${apiUrl}/public/packages`);
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const text = await response.text();
+        throw new Error(`HTTP ${response.status}: ${text.slice(0, 50)}`);
       }
       const data = await response.json();
       // Ensure data is an array

@@ -29,6 +29,9 @@ const Destinations = () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
       const response = await fetch(`${apiUrl}/public/destinations`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch destinations`);
+      }
       const data = await response.json();
       
       // Transform API data to match frontend format

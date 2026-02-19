@@ -19,7 +19,8 @@ const Contact = () => {
 
   const fetchContactInfo = async () => {
     try {
-      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/contact-settings');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
+      const response = await fetch(`${apiUrl}/public/contact-settings`);
       const data = await response.json();
       setContactInfo(data);
     } catch (error) {
@@ -30,7 +31,8 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('https://wildwave-safaris-api.onrender.com/api/public/enquiries', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
+      await fetch(`${apiUrl}/public/enquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
