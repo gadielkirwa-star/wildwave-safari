@@ -299,6 +299,50 @@ router.delete('/packages/:id', authenticate, async (req, res) => {
   }
 });
 
+// Sync package images to matching destinations by name
+router.post('/packages/sync-destination-images', authenticate, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      WITH source AS (
+        SELECT name, image_url
+        FROM packages
+        WHERE COALESCE(published, true) = true
+          AND COALESCE(NULLIF(TRIM(image_url), ''), '') <> ''
+      ),
+      updated AS (
+        UPDATE destinations d
+        SET image_url = s.image_url
+        FROM source s
+        WHERE LOWER(TRIM(d.name)) = LOWER(TRIM(s.name))
+        RETURNING LOWER(TRIM(d.name)) AS name_key
+      )
+      SELECT
+        (SELECT COUNT(*) FROM source) AS source_count,
+        (SELECT COUNT(*) FROM updated) AS updated_count,
+        (
+          SELECT COUNT(*)
+          FROM source s
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM updated u
+            WHERE u.name_key = LOWER(TRIM(s.name))
+          )
+        ) AS unmatched_count
+    `);
+
+    const row = result.rows[0];
+    res.json({
+      sourceCount: Number(row.source_count || 0),
+      updatedCount: Number(row.updated_count || 0),
+      unmatchedCount: Number(row.unmatched_count || 0),
+      message: 'Destination images synced from safari packages',
+    });
+  } catch (error) {
+    console.error('Sync destination images error:', error);
+    res.status(500).json({ error: 'Failed to sync destination images' });
+  }
+});
+
 // Promotions
 router.get('/promotions', authenticate, async (req, res) => {
   try {

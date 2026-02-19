@@ -5,7 +5,9 @@ const router = express.Router();
 
 router.get('/destinations', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM destinations WHERE published = true ORDER BY created_at DESC');
+    const result = await pool.query(
+      'SELECT * FROM destinations WHERE COALESCE(published, true) = true ORDER BY created_at DESC, id DESC'
+    );
     res.json(result.rows);
   } catch (error) {
     console.error('Public destinations error:', error);
@@ -16,7 +18,10 @@ router.get('/destinations', async (req, res) => {
 router.get('/destinations/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query('SELECT * FROM destinations WHERE id = $1', [id]);
+    const result = await pool.query(
+      'SELECT * FROM destinations WHERE id = $1 AND COALESCE(published, true) = true',
+      [id]
+    );
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Destination not found' });
@@ -63,7 +68,9 @@ router.post('/enquiries', async (req, res) => {
 
 router.get('/blogs', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM blogs WHERE published = true ORDER BY created_at DESC');
+    const result = await pool.query(
+      'SELECT * FROM blogs WHERE COALESCE(published, true) = true ORDER BY created_at DESC, id DESC'
+    );
     res.json(result.rows);
   } catch (error) {
     console.error('Public blogs error:', error);
@@ -74,7 +81,10 @@ router.get('/blogs', async (req, res) => {
 router.get('/blogs/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query('SELECT * FROM blogs WHERE id = $1 AND published = true', [id]);
+    const result = await pool.query(
+      'SELECT * FROM blogs WHERE id = $1 AND COALESCE(published, true) = true',
+      [id]
+    );
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Blog not found' });
@@ -99,7 +109,9 @@ router.get('/contact-settings', async (req, res) => {
 
 router.get('/packages', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM packages WHERE published = true ORDER BY created_at DESC');
+    const result = await pool.query(
+      'SELECT * FROM packages WHERE COALESCE(published, true) = true ORDER BY created_at DESC, id DESC'
+    );
     res.json(result.rows);
   } catch (error) {
     console.error('Public packages error:', error);

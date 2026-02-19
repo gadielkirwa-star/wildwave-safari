@@ -26,6 +26,11 @@ ALTER TABLE destinations ADD COLUMN IF NOT EXISTS best_months TEXT;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_requests TEXT;
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS subject VARCHAR(255);
 
+-- Normalize legacy/null publish flags so public pages can display updated records
+UPDATE destinations SET published = true WHERE published IS NULL;
+UPDATE packages SET published = true WHERE published IS NULL;
+UPDATE blogs SET published = true WHERE published IS NULL;
+
 INSERT INTO contact_settings (id, phone, email, whatsapp, address, office_hours) VALUES
 (1, '+254 713 241 666', 'wildwavesafaris@gmail.com', '+254 713 241 666', 'Thika Road, Spur Mall, Nairobi', 'Mon - Fri: 8:00 AM - 6:00 PM (EAT)
 Sat: 9:00 AM - 3:00 PM (EAT)

@@ -33,8 +33,8 @@ const Destinations = () => {
         throw new Error(`HTTP ${response.status}: Failed to fetch destinations`);
       }
       const data = await response.json();
-      
-      // Transform API data to match frontend format
+
+      // Transform and de-duplicate API data so repeated seed rows don't appear twice.
       const transformed = data.map((dest: any) => ({
         id: dest.id,
         name: dest.name,
@@ -45,8 +45,13 @@ const Destinations = () => {
         desc: dest.description,
         bestMonths: dest.best_months || 'Year-round'
       }));
-      
-      setAllDestinations(transformed);
+
+      const deduped = transformed.filter((dest: any, index: number, arr: any[]) => {
+        const key = `${dest.name}::${dest.country}::${dest.image}`;
+        return index === arr.findIndex((item: any) => `${item.name}::${item.country}::${item.image}` === key);
+      });
+
+      setAllDestinations(deduped);
     } catch (error) {
       console.error('Failed to fetch destinations:', error);
     } finally {
