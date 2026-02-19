@@ -1,0 +1,14 @@
+ id |           name           |                          image_url                           
+----+--------------------------+--------------------------------------------------------------
+  1 | Masai Mara Safari        | https://images.unsplash.com/photo-1516426122078-c23e76319801
+  2 | Serengeti Adventure      | https://images.unsplash.com/photo-1547471080-7cc2caa01a7e
+  3 | Gorilla Trekking Uganda  | https://images.unsplash.com/photo-1564760055775-d63b17a55c44
+  4 | Rwanda Wildlife Tour     | https://images.unsplash.com/photo-1535083783855-76ae62b2914e
+  5 | Amboseli Elephant Safari | https://images.unsplash.com/photo-1549366021-9f761d450615
+  6 | Zanzibar Beach Escape    | https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f
+  7 | Masai Mara Safari        | https://images.unsplash.com/photo-1516426122078-c23e76319801
+  8 | Serengeti Adventure      | https://images.unsplash.com/photo-1547471080-7cc2caa01a7e
+  9 | Gorilla Trekking Uganda  | https://images.unsplash.com/photo-1564760055775-d63b17a55c44
+ 10 | Rwanda Wildlife Tour     | https://images.unsplash.com/photo-1535083783855-76ae62b2914e
+(10 rows)
+

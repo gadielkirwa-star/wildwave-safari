@@ -12,7 +12,8 @@ import zanzibarImg from "@/assets/zanzibar-beach.jpg";
 import masaiMaraImg from "@/assets/masai-mara.jpg";
 import ngorongoroImg from "@/assets/ngorongoro.jpg";
 
-const destinations = [
+// Fallback images in case API returns no data
+const fallbackDestinations = [
   { name: "Masai Mara", country: "Kenya", image: masaiMaraImg, desc: "Witness the Great Migration" },
   { name: "Serengeti", country: "Tanzania", image: serengetiImg, desc: "Endless plains of wildlife" },
   { name: "Ngorongoro", country: "Tanzania", image: ngorongoroImg, desc: "The world's largest caldera" },
@@ -21,7 +22,7 @@ const destinations = [
   { name: "Balloon Safari", country: "Kenya", image: balloonImg, desc: "Sunrise over the savanna" },
 ];
 
-const packages = [
+const fallbackPackages = [
   { name: "Classic Game Drive", duration: "7 Days", price: "From $2,800", tag: "Most Popular", image: masaiMaraImg, desc: "The quintessential East African safari through Kenya's iconic parks." },
   { name: "Gorilla Trekking", duration: "5 Days", price: "From $4,200", tag: "Exclusive", image: gorillaImg, desc: "Trek through misty forests to meet mountain gorillas face-to-face." },
   { name: "Balloon Safari", duration: "10 Days", price: "From $5,500", tag: "Premium", image: balloonImg, desc: "Float above the Serengeti at sunrise for a once-in-a-lifetime experience." },
@@ -59,6 +60,9 @@ const heroImages = [
 
 const Index = () => {
   const [currentImage, setCurrentImage] = useState(0);
+  const [destinations, setDestinations] = useState<any[]>(fallbackDestinations);
+  const [packages, setPackages] = useState<any[]>(fallbackPackages);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -66,6 +70,56 @@ const Index = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    fetchDestinationsAndPackages();
+  }, []);
+
+  const fetchDestinationsAndPackages = async () => {
+    try {
+      // Fetch destinations from API
+      const destResponse = await fetch('https://wildwave-safaris-api.onrender.com/api/public/destinations');
+      if (destResponse.ok) {
+        const destData = await destResponse.json();
+        if (Array.isArray(destData) && destData.length > 0) {
+          // Transform API destinations to match display format
+          const apiDestinations = destData.slice(0, 6).map((dest: any) => ({
+            name: dest.name,
+            country: dest.country || dest.category,
+            image: dest.image_url,
+            desc: dest.description,
+          }));
+          setDestinations(apiDestinations);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch destinations:', error);
+    }
+
+    try {
+      // Fetch packages from API
+      const pkgResponse = await fetch('https://wildwave-safaris-api.onrender.com/api/public/packages');
+      if (pkgResponse.ok) {
+        const pkgData = await pkgResponse.json();
+        if (Array.isArray(pkgData) && pkgData.length > 0) {
+          // Transform API packages to match display format
+          const apiPackages = pkgData.slice(0, 4).map((pkg: any) => ({
+            name: pkg.name,
+            duration: pkg.duration,
+            price: `From $${pkg.price}`,
+            tag: pkg.tag,
+            image: pkg.image_url,
+            desc: pkg.description,
+          }));
+          setPackages(apiPackages);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch packages:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
