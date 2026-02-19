@@ -106,6 +106,8 @@ CREATE TABLE IF NOT EXISTS packages (
   image_url TEXT,
   tag VARCHAR(50),
   itinerary TEXT,
+  includes TEXT,
+  excludes TEXT,
   published BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
