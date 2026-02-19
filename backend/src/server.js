@@ -13,15 +13,18 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 // Configure CORS using CORS_ORIGIN env var (comma-separated list)
-const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:8080,http://localhost:5173';
+const rawOrigins = process.env.CORS_ORIGIN || '*';
 const allowedOrigins = rawOrigins.split(',').map((s) => s.trim()).filter(Boolean);
+const allowAllOrigins = allowedOrigins.includes('*');
 
-// Temporarily allow all origins to ensure CORS headers are present for deployed frontends.
-// In production you can restrict this by setting `CORS_ORIGIN` and validating the origin.
-// For now allow any origin so frontends can access the API. Remove or restrict
-// this for stricter production CORS policies.
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    if (allowAllOrigins || !origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));

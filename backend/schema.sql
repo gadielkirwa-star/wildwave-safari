@@ -8,6 +8,16 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Customers table
+CREATE TABLE IF NOT EXISTS customers (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Destinations table
 CREATE TABLE IF NOT EXISTS destinations (
   id SERIAL PRIMARY KEY,
@@ -17,6 +27,9 @@ CREATE TABLE IF NOT EXISTS destinations (
   duration VARCHAR(100),
   image_url TEXT,
   category VARCHAR(100),
+  country VARCHAR(100),
+  tags TEXT,
+  best_months TEXT,
   published BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -31,6 +44,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   number_of_people INTEGER,
   start_date DATE,
   total_price DECIMAL(10, 2),
+  special_requests TEXT,
   status VARCHAR(50) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -57,6 +71,18 @@ CREATE TABLE IF NOT EXISTS blogs (
   image_url TEXT,
   read_time VARCHAR(50),
   published BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Contact settings table
+CREATE TABLE IF NOT EXISTS contact_settings (
+  id SERIAL PRIMARY KEY,
+  phone VARCHAR(50),
+  email VARCHAR(255),
+  whatsapp VARCHAR(50),
+  address TEXT,
+  office_hours TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -136,3 +162,22 @@ CREATE TABLE IF NOT EXISTS promotions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Backward-compatible column migrations for existing databases
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS country VARCHAR(100);
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS tags TEXT;
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS best_months TEXT;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_requests TEXT;
+ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS subject VARCHAR(255);
+
+-- Default contact settings row
+INSERT INTO contact_settings (id, phone, email, whatsapp, address, office_hours) VALUES
+(1, '+254 713 241 666', 'wildwavesafaris@gmail.com', '+254 713 241 666', 'Thika Road, Spur Mall, Nairobi', 'Mon - Fri: 8:00 AM - 6:00 PM (EAT)
+Sat: 9:00 AM - 3:00 PM (EAT)
+Sun: Closed')
+ON CONFLICT (id) DO NOTHING;
+
+-- Sample customers (password: 1234)
+INSERT INTO customers (name, email, password, phone) VALUES
+('Demo Customer', 'customer@wildwavesafaris.com', '$2b$12$tG7x8V30SmN6Fo2U17eqO.BRx4h4uavvT0x5G98e6x3Hf7QJ8kicS', '+254700000001')
+ON CONFLICT (email) DO NOTHING;

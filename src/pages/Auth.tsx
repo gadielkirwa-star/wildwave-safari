@@ -18,7 +18,7 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const endpoint = isLogin ? '/api/customer-auth/login' : '/api/customer-auth/signup';
+      const endpoint = isLogin ? '/customer-auth/login' : '/customer-auth/signup';
       const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
