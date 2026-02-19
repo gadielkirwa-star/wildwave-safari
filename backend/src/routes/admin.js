@@ -4,6 +4,19 @@ import { authenticate } from '../middleware/authenticate.js';
 
 const router = express.Router();
 
+const syncDestinationImageByPackageName = async (name, imageUrl) => {
+  if (!name || !imageUrl) return 0;
+
+  const result = await pool.query(
+    `UPDATE destinations
+     SET image_url = $1
+     WHERE LOWER(TRIM(name)) = LOWER(TRIM($2))`,
+    [imageUrl, name]
+  );
+
+  return result.rowCount || 0;
+};
+
 // Dashboard statistics
 router.get('/dashboard', authenticate, async (req, res) => {
   try {
@@ -263,7 +276,10 @@ router.post('/packages', authenticate, async (req, res) => {
       'INSERT INTO packages (name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
       [name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published !== false]
     );
-    
+
+    // Keep public destinations in sync when package name matches destination name.
+    await syncDestinationImageByPackageName(name, image_url);
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Create package error:', error);
@@ -280,7 +296,12 @@ router.put('/packages/:id', authenticate, async (req, res) => {
       'UPDATE packages SET name = $1, duration = $2, price = $3, tag = $4, type = $5, image_url = $6, description = $7, itinerary = $8, includes = $9, excludes = $10, published = $11 WHERE id = $12 RETURNING *',
       [name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published, id]
     );
-    
+
+    if (result.rows[0]) {
+      // Keep public destinations in sync when package name matches destination name.
+      await syncDestinationImageByPackageName(result.rows[0].name, result.rows[0].image_url);
+    }
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Update package error:', error);
