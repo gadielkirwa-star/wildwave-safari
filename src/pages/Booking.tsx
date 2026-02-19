@@ -48,7 +48,7 @@ const Booking = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/public/packages');
+      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/packages');
       const data = await response.json();
       setPackages(data);
     } catch (error) {
@@ -59,7 +59,7 @@ const Booking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:5000/api/public/bookings', {
+      await fetch('https://wildwave-safaris-api.onrender.com/api/public/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

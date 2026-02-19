@@ -22,7 +22,7 @@ const Packages = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/public/packages');
+      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/packages');
       const data = await response.json();
       setPackages(data);
     } catch (error) {

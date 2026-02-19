@@ -27,7 +27,7 @@ const Destinations = () => {
 
   const fetchDestinations = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/public/destinations');
+      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/destinations');
       const data = await response.json();
       
       // Transform API data to match frontend format

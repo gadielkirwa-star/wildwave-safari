@@ -19,7 +19,7 @@ const Contact = () => {
 
   const fetchContactInfo = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/public/contact-settings');
+      const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/contact-settings');
       const data = await response.json();
       setContactInfo(data);
     } catch (error) {
@@ -30,7 +30,7 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:5000/api/public/enquiries', {
+      await fetch('https://wildwave-safaris-api.onrender.com/api/public/enquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

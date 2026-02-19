@@ -14,7 +14,7 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/public/blogs');
+        const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/blogs');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

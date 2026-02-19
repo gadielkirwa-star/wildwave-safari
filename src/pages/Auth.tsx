@@ -19,7 +19,7 @@ const Auth = () => {
     e.preventDefault();
     try {
       const endpoint = isLogin ? '/api/customer-auth/login' : '/api/customer-auth/signup';
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`https://wildwave-safaris-api.onrender.com${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

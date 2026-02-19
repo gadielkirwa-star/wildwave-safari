@@ -11,7 +11,7 @@ export default function PromotionalPopup() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/public/promotions')
+        const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/promotions')
         const data = await response.json()
         console.log('Promotions data:', data)
         if (data && data.length > 0) {
