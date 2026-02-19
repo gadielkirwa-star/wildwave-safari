@@ -49,10 +49,20 @@ const Booking = () => {
   const fetchPackages = async () => {
     try {
       const response = await fetch('https://wildwave-safaris-api.onrender.com/api/public/packages');
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
       const data = await response.json();
-      setPackages(data);
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setPackages(data);
+      } else {
+        console.error('Unexpected response format:', data);
+        setPackages([]);
+      }
     } catch (error) {
       console.error('Failed to fetch packages:', error);
+      setPackages([]);
     }
   };
 
