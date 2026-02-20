@@ -70,11 +70,13 @@ const Blog = () => {
                   custom={i}
                   className="bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all"
                 >
-                  <img
-                    src={post.image_url}
-                    alt={post.title}
-                    className="w-full h-72 object-cover"
-                  />
+                  <div className="w-full h-80 overflow-hidden">
+                    <img
+                      src={post.image_url}
+                      alt={post.title}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </div>
                   <div className="p-6">
                     <span className="inline-block bg-muted text-foreground text-xs px-3 py-1 rounded-full mb-3">
                       {post.category}
