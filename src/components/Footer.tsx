@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Phone, Mail, Instagram, Facebook, Twitter } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram, Facebook, Music2 } from "lucide-react";
 
 const partners = [
   { name: "KWS", logo: "https://www.kws.go.ke/sites/default/files/logo_2.png" },
@@ -17,6 +17,12 @@ const partners = [
 ];
 
 const Footer = () => {
+  const socialLinks = [
+    { icon: Instagram, href: "#" },
+    { icon: Facebook, href: "https://www.facebook.com/share/16kHvGDuwT/" },
+    { icon: Music2, href: "https://www.tiktok.com/@wildwavesafaris?_t=ZM-8yaxQnBH5SY&_r=1" },
+  ];
+
   return (
     <footer className="bg-safari-charcoal text-safari-sand">
       {/* Partners Section */}
@@ -51,8 +57,14 @@ const Footer = () => {
               From the Serengeti to the mountains of Rwanda, we bring you closer to the wild.
             </p>
             <div className="flex gap-4">
-              {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                <a key={i} href="#" className="p-2 rounded-full bg-safari-warm-brown hover:bg-primary transition-colors">
+              {socialLinks.map(({ icon: Icon, href }, i) => (
+                <a
+                  key={i}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-safari-warm-brown hover:bg-primary transition-colors"
+                >
                   <Icon className="w-5 h-5" />
                 </a>
               ))}
