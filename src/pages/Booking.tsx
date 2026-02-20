@@ -71,7 +71,7 @@ const Booking = () => {
     e.preventDefault();
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      await fetch(`${apiUrl}/public/bookings`, {
+      const response = await fetch(`${apiUrl}/public/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -85,6 +85,12 @@ const Booking = () => {
           special_requests: formData.special_requests
         })
       });
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        throw new Error(errorPayload.error || `HTTP ${response.status}`);
+      }
+
       toast({ title: "Booking Submitted!", description: "We'll contact you shortly to confirm your safari." });
       setFormData({
         customer_name: "", email: "", phone: "", safari_type: "", number_of_people: "",
