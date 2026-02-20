@@ -73,7 +73,7 @@ const Blog = () => {
                   <img
                     src={post.image_url}
                     alt={post.title}
-                    className="w-full h-64 object-cover"
+                    className="w-full h-72 object-cover"
                   />
                   <div className="p-6">
                     <span className="inline-block bg-muted text-foreground text-xs px-3 py-1 rounded-full mb-3">
