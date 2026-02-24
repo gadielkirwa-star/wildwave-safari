@@ -1,15 +1,26 @@
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 const NotFound = () => {
   const location = useLocation();
+  const rawPath = decodeURIComponent(location.pathname || "/");
+  const normalizedPath =
+    rawPath
+      .trim()
+      .replace(/^['"]+|['"]+$/g, "")
+      .replace(/\/+$/, "") || "/";
+  const aliasToHome = new Set(["/", "/index.html", "/index.php", "/home", "/tours"]);
 
   useEffect(() => {
-    const path = location.pathname === "/index.html" ? "/" : location.pathname;
+    const path = normalizedPath === "/index.html" ? "/" : normalizedPath;
     if (path !== "/" && import.meta.env.DEV) {
       console.warn("404 route:", path);
     }
-  }, [location.pathname]);
+  }, [normalizedPath]);
+
+  if (aliasToHome.has(normalizedPath)) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted">
