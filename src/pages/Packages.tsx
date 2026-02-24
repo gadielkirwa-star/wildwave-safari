@@ -3,6 +3,8 @@ import { Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/api";
+import { toImageSrc, withImageFallback } from "@/lib/images";
 
 const types = ["All", "Classic", "Gorilla Trekking", "Balloon Safaris", "Beach Add-Ons"];
 
@@ -22,8 +24,7 @@ const Packages = () => {
 
   const fetchPackages = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      const response = await fetch(`${apiUrl}/public/packages`);
+      const response = await fetch(`${API_BASE_URL}/public/packages`);
       if (!response.ok) {
         const text = await response.text();
         throw new Error(`HTTP ${response.status}: ${text.slice(0, 50)}`);
@@ -97,7 +98,12 @@ const Packages = () => {
               className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all flex flex-col"
             >
               <div className="relative h-64 overflow-hidden">
-                <img src={pkg.image_url} alt={pkg.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img
+                  src={toImageSrc(pkg.image_url)}
+                  alt={pkg.name}
+                  onError={withImageFallback}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
                 <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                   {pkg.tag}
                 </span>

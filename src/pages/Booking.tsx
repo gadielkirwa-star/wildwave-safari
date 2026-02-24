@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "@/lib/api";
 
 const Booking = () => {
   const { toast } = useToast();
@@ -48,8 +49,7 @@ const Booking = () => {
 
   const fetchPackages = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      const response = await fetch(`${apiUrl}/public/packages`);
+      const response = await fetch(`${API_BASE_URL}/public/packages`);
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
@@ -70,8 +70,7 @@ const Booking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      const response = await fetch(`${apiUrl}/public/bookings`, {
+      const response = await fetch(`${API_BASE_URL}/public/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

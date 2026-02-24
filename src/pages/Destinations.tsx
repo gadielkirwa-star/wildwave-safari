@@ -3,9 +3,12 @@ import { motion } from "framer-motion";
 import { MapPin, Filter, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "@/lib/api";
+import { toImageSrc, withImageFallback } from "@/lib/images";
 
 const regions = ["All", "Kenya", "Tanzania", "Uganda", "Rwanda"];
 const categories = ["All", "Luxury", "Budget", "Photo Safaris", "Family Safaris"];
+const countryOrder = ["Kenya", "Tanzania", "Uganda", "Rwanda"];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -27,8 +30,7 @@ const Destinations = () => {
 
   const fetchDestinations = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      const response = await fetch(`${apiUrl}/public/destinations`);
+      const response = await fetch(`${API_BASE_URL}/public/destinations`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: Failed to fetch destinations`);
       }
@@ -41,7 +43,7 @@ const Destinations = () => {
         country: dest.country || dest.category,
         region: dest.category,
         category: dest.tags ? dest.tags.split(',').map((t: string) => t.trim()) : ['Luxury'],
-        image: dest.image_url,
+        image: toImageSrc(dest.image_url),
         desc: dest.description,
         bestMonths: dest.best_months || 'Year-round'
       }));
@@ -59,11 +61,21 @@ const Destinations = () => {
     }
   };
 
-  const filtered = allDestinations.filter((d) => {
-    const regionMatch = activeRegion === "All" || d.region === activeRegion;
-    const catMatch = activeCategory === "All" || d.category.includes(activeCategory);
-    return regionMatch && catMatch;
-  });
+  const filtered = allDestinations
+    .filter((d) => {
+      const regionMatch = activeRegion === "All" || d.region === activeRegion;
+      const catMatch = activeCategory === "All" || d.category.includes(activeCategory);
+      return regionMatch && catMatch;
+    })
+    .sort((a, b) => {
+      const aIdx = countryOrder.indexOf(a.country);
+      const bIdx = countryOrder.indexOf(b.country);
+      const aRank = aIdx === -1 ? Number.MAX_SAFE_INTEGER : aIdx;
+      const bRank = bIdx === -1 ? Number.MAX_SAFE_INTEGER : bIdx;
+
+      if (aRank !== bRank) return aRank - bRank;
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <div className="min-h-screen pt-24">
@@ -143,7 +155,12 @@ const Destinations = () => {
                   custom={i}
                   className="group relative rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all h-80"
                 >
-                  <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img
+                    src={dest.image}
+                    alt={dest.name}
+                    onError={withImageFallback}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-safari-charcoal/90 via-safari-charcoal/40 to-transparent" />
                   <div className="absolute top-4 left-4 flex gap-2 z-10">
                     {dest.category.map((cat) => (

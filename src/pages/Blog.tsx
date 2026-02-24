@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Calendar, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/api";
+import { toImageSrc, withImageFallback } from "@/lib/images";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -14,13 +16,11 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-        const response = await fetch(`${apiUrl}/public/blogs`);
+        const response = await fetch(`${API_BASE_URL}/public/blogs`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Fetched blogs:', data.length);
         setPosts(data);
       } catch (error) {
         console.error('Failed to fetch blogs:', error);
@@ -72,8 +72,9 @@ const Blog = () => {
                 >
                   <div className="w-full h-80 overflow-hidden">
                     <img
-                      src={post.image_url}
+                      src={toImageSrc(post.image_url)}
                       alt={post.title}
+                      onError={withImageFallback}
                       className="w-full h-full object-cover object-center"
                     />
                   </div>

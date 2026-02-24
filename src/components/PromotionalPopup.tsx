@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { X, Tag } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { API_BASE_URL } from '@/lib/api'
 
 export default function PromotionalPopup() {
   const [promotions, setPromotions] = useState<any[]>([])
@@ -11,13 +12,11 @@ export default function PromotionalPopup() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-        const response = await fetch(`${apiUrl}/public/promotions`)
+        const response = await fetch(`${API_BASE_URL}/public/promotions`)
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: Failed to fetch promotions`)
         }
         const data = await response.json()
-        console.log('Promotions data:', data)
         if (data && data.length > 0) {
           setPromotions(data)
           setIsOpen(true)

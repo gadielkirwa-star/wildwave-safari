@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "@/lib/api";
 
 const Auth = () => {
   const { toast } = useToast();
@@ -19,8 +20,7 @@ const Auth = () => {
     e.preventDefault();
     try {
       const endpoint = isLogin ? '/customer-auth/login' : '/customer-auth/signup';
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      const response = await fetch(`${apiUrl}${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -29,6 +29,9 @@ const Auth = () => {
       const data = await response.json();
       
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Invalid email or password.");
+        }
         throw new Error(data.error || 'Authentication failed');
       }
 

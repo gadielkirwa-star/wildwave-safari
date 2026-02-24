@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE_URL } from "@/lib/api";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -19,8 +20,7 @@ const Contact = () => {
 
   const fetchContactInfo = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      const response = await fetch(`${apiUrl}/public/contact-settings`);
+      const response = await fetch(`${API_BASE_URL}/public/contact-settings`);
       const data = await response.json();
       setContactInfo(data);
     } catch (error) {
@@ -31,8 +31,7 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      await fetch(`${apiUrl}/public/enquiries`, {
+      await fetch(`${API_BASE_URL}/public/enquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

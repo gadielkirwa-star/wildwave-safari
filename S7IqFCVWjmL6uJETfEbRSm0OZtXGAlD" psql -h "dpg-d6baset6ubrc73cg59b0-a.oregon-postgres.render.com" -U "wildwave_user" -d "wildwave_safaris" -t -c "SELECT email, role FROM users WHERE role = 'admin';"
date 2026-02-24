@@ -1,0 +1,5 @@
+ id |    name    |           email           | role  |                           password                           
+----+------------+---------------------------+-------+--------------------------------------------------------------
+  1 | Admin User | admin@wildwavesafaris.com | admin | $2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEHaSuu
+(1 row)
+
