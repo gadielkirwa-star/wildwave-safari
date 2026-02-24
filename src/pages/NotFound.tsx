@@ -1,7 +1,15 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useSEO } from "@/hooks/use-seo";
 
 const NotFound = () => {
+  useSEO({
+    title: "Page Not Found | WildWave Safaris",
+    description: "The page you requested could not be found.",
+    path: "/404",
+    noindex: true,
+  });
+
   const location = useLocation();
   const rawPath = decodeURIComponent(location.pathname || "/");
   const normalizedPath =

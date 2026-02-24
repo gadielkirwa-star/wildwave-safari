@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PromotionalPopup from "./components/PromotionalPopup";
@@ -21,10 +21,20 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
+
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname, search, hash]);
+
   return null;
 };
 

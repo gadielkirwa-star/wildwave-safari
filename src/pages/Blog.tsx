@@ -3,6 +3,7 @@ import { Calendar, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
+import { useSEO } from "@/hooks/use-seo";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -10,6 +11,14 @@ const fadeUp = {
 };
 
 const Blog = () => {
+  useSEO({
+    title: "Safari Blog & Travel Guides | WildWave Safaris",
+    description:
+      "Read WildWave Safaris travel guides, safari tips, and destination stories to plan a better East Africa adventure.",
+    path: "/blog",
+    keywords: ["safari blog", "east africa travel guide", "safari tips"],
+  });
+
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

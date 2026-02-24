@@ -7,8 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "@/lib/api";
+import { useSEO } from "@/hooks/use-seo";
 
 const Booking = () => {
+  useSEO({
+    title: "Safari Booking | WildWave Safaris",
+    description: "Finalize your safari booking details with WildWave Safaris.",
+    path: "/booking",
+    noindex: true,
+  });
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const [packages, setPackages] = useState<any[]>([]);

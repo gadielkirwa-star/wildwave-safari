@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Heart, Globe, Leaf, Users } from "lucide-react";
 import heroImage from "@/assets/hero-safari.jpg";
 import gorillaImg from "@/assets/gorilla-trekking.jpg";
+import { useSEO } from "@/hooks/use-seo";
 
 const team = [
   { name: "Daniel Kipchoge", role: "Founder & Lead Guide", bio: "Born in the Mara, Daniel has 20+ years guiding safaris across East Africa." },
@@ -23,6 +24,14 @@ const fadeUp = {
 };
 
 const About = () => {
+  useSEO({
+    title: "About WildWave Safaris | Our Story & Mission",
+    description:
+      "Learn how WildWave Safaris was built to deliver unforgettable East Africa adventures while supporting conservation and local communities.",
+    path: "/about",
+    keywords: ["about wildwave safaris", "safari company", "sustainable travel"],
+  });
+
   return (
     <div className="min-h-screen pt-24">
       {/* Hero */}

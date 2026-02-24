@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
+import { useSEO } from "@/hooks/use-seo";
 
 const regions = ["All", "Kenya", "Tanzania", "Uganda", "Rwanda"];
 const categories = ["All", "Luxury", "Budget", "Photo Safaris", "Family Safaris"];
@@ -19,6 +20,14 @@ const fadeUp = {
 };
 
 const Destinations = () => {
+  useSEO({
+    title: "Safari Destinations in East Africa | WildWave Safaris",
+    description:
+      "Explore iconic safari destinations across Kenya, Tanzania, Uganda, and Rwanda with expert planning from WildWave Safaris.",
+    path: "/destinations",
+    keywords: ["Masai Mara", "Serengeti", "Ngorongoro", "Bwindi", "East Africa destinations"],
+  });
+
   const [activeRegion, setActiveRegion] = useState("All");
   const [activeCategory, setActiveCategory] = useState("All");
   const [allDestinations, setAllDestinations] = useState<any[]>([]);

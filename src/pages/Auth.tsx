@@ -6,8 +6,16 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "@/lib/api";
+import { useSEO } from "@/hooks/use-seo";
 
 const Auth = () => {
+  useSEO({
+    title: "Sign In | WildWave Safaris",
+    description: "Sign in or create an account to manage your WildWave Safaris booking.",
+    path: "/auth",
+    noindex: true,
+  });
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);

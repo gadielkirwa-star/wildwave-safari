@@ -6,8 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { API_BASE_URL } from "@/lib/api";
+import { useSEO } from "@/hooks/use-seo";
 
 const Contact = () => {
+  useSEO({
+    title: "Contact WildWave Safaris | Plan Your Safari",
+    description:
+      "Contact WildWave Safaris to plan your East Africa safari. Get expert advice and a custom itinerary tailored to your travel goals.",
+    path: "/contact",
+    keywords: ["contact safari planner", "book east africa safari", "wildwave contact"],
+  });
+
   const { toast } = useToast();
   const [contactInfo, setContactInfo] = useState<any>({});
   const [formData, setFormData] = useState({

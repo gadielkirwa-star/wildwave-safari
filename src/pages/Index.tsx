@@ -5,6 +5,7 @@ import { ArrowRight, Star, Shield, Users, MapPin, Calendar, Compass, ChevronRigh
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
+import { useSEO } from "@/hooks/use-seo";
 
 import heroImage from "@/assets/hero-safari.jpg";
 import gorillaImg from "@/assets/gorilla-trekking.jpg";
@@ -107,6 +108,36 @@ const heroImages = [
 ];
 
 const Index = () => {
+  useSEO({
+    title: "WildWave Safaris | East Africa's Premier Safari Company",
+    description:
+      "Handcrafted safari experiences across Kenya, Tanzania, Uganda and Rwanda. Expert guides, custom itineraries, and sustainable travel.",
+    path: "/",
+    keywords: [
+      "East Africa safari",
+      "Kenya safari",
+      "Tanzania safari",
+      "Uganda gorilla trekking",
+      "Rwanda safari",
+      "luxury safari tours",
+    ],
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "WildWave Safaris",
+        url: window.location.origin,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "TravelAgency",
+        name: "WildWave Safaris",
+        url: window.location.origin,
+        areaServed: ["Kenya", "Tanzania", "Uganda", "Rwanda"],
+      },
+    ],
+  });
+
   const [currentImage, setCurrentImage] = useState(0);
   const [packages, setPackages] = useState<any[]>(fallbackPackages);
 

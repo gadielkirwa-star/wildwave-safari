@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
+import { useSEO } from "@/hooks/use-seo";
 
 const types = ["All", "Classic", "Gorilla Trekking", "Balloon Safaris", "Beach Add-Ons"];
 
@@ -14,6 +15,14 @@ const fadeUp = {
 };
 
 const Packages = () => {
+  useSEO({
+    title: "Safari Packages | WildWave Safaris",
+    description:
+      "Browse customizable safari packages from classic game drives to gorilla trekking and beach extensions across East Africa.",
+    path: "/packages",
+    keywords: ["safari packages", "gorilla trekking packages", "custom safari itinerary"],
+  });
+
   const [activeType, setActiveType] = useState("All");
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
