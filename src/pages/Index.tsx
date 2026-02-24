@@ -3,23 +3,71 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Shield, Users, MapPin, Calendar, Compass, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/api";
+import { toImageSrc, withImageFallback } from "@/lib/images";
 
 import heroImage from "@/assets/hero-safari.jpg";
-import serengetiImg from "@/assets/serengeti.jpg";
 import gorillaImg from "@/assets/gorilla-trekking.jpg";
 import balloonImg from "@/assets/balloon-safari.jpg";
 import zanzibarImg from "@/assets/zanzibar-beach.jpg";
 import masaiMaraImg from "@/assets/masai-mara.jpg";
-import ngorongoroImg from "@/assets/ngorongoro.jpg";
 
-// Fallback images in case API returns no data
-const fallbackDestinations = [
-  { name: "Masai Mara", country: "Kenya", image: masaiMaraImg, desc: "Witness the Great Migration" },
-  { name: "Serengeti", country: "Tanzania", image: serengetiImg, desc: "Endless plains of wildlife" },
-  { name: "Ngorongoro", country: "Tanzania", image: ngorongoroImg, desc: "The world's largest caldera" },
-  { name: "Bwindi Forest", country: "Uganda", image: gorillaImg, desc: "Mountain gorilla encounters" },
-  { name: "Zanzibar", country: "Tanzania", image: zanzibarImg, desc: "Tropical paradise beaches" },
-  { name: "Balloon Safari", country: "Kenya", image: balloonImg, desc: "Sunrise over the savanna" },
+// Permanent home-page images for "Iconic Wild Places"
+const iconicDestinations = [
+  {
+    name: "Masai Mara",
+    country: "Kenya",
+    image: "https://i.pinimg.com/1200x/ae/64/93/ae6493a432647ec3fe66e4dda779e99a.jpg",
+    desc: "Classic big-five safaris and migration landscapes.",
+  },
+  {
+    name: "Serengeti",
+    country: "Tanzania",
+    image: "https://i.pinimg.com/736x/dd/d8/9f/ddd89f739afe3996ce69071637bd91d5.jpg",
+    desc: "Vast plains, predators, and unforgettable wildlife drives.",
+  },
+  {
+    name: "Bwindi Impenetrable",
+    country: "Uganda",
+    image: "https://i.pinimg.com/736x/e9/dc/d6/e9dcd62be4f11040b9ff07ba7a54749b.jpg",
+    desc: "Dense rainforest trekking and mountain gorilla encounters.",
+  },
+  {
+    name: "Kilimanjaro",
+    country: "Tanzania",
+    image: "https://i.pinimg.com/1200x/4a/83/da/4a83da4b46529de8257a8c32d58ee12c.jpg",
+    desc: "Africa's highest peak with dramatic scenic backdrops.",
+  },
+  {
+    name: "Lake Nakuru",
+    country: "Kenya",
+    image: "https://i.pinimg.com/1200x/4e/fa/77/4efa77e3fc8a32a5148bb70755f2921b.jpg",
+    desc: "Rift Valley lake known for birds and rhino sightings.",
+  },
+  {
+    name: "Ngorongoro",
+    country: "Tanzania",
+    image: "https://i.pinimg.com/1200x/29/68/a5/2968a51bcd91e70dd826e36c74a68333.jpg",
+    desc: "World-famous crater packed with year-round wildlife.",
+  },
+  {
+    name: "Amboseli",
+    country: "Kenya",
+    image: "https://i.pinimg.com/1200x/ce/fd/5c/cefd5ccbfc94242b15300aab408a2da0.jpg",
+    desc: "Iconic elephant herds beneath Mount Kilimanjaro views.",
+  },
+  {
+    name: "Diani",
+    country: "Kenya",
+    image: "https://i.pinimg.com/1200x/0c/7e/44/0c7e446fb3bba4abe039aa1cd2d44d7e.jpg",
+    desc: "White-sand coastlines and turquoise Indian Ocean waters.",
+  },
+  {
+    name: "Tsavo",
+    country: "Kenya",
+    image: "https://i.pinimg.com/736x/1c/5c/6b/1c5c6be0ed2cbdadf13c8a8c6a597552.jpg",
+    desc: "Expansive wilderness, red elephants, and dramatic landscapes.",
+  },
 ];
 
 const fallbackPackages = [
@@ -60,9 +108,7 @@ const heroImages = [
 
 const Index = () => {
   const [currentImage, setCurrentImage] = useState(0);
-  const [destinations, setDestinations] = useState<any[]>(fallbackDestinations);
   const [packages, setPackages] = useState<any[]>(fallbackPackages);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -72,33 +118,12 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    fetchDestinationsAndPackages();
+    fetchPackages();
   }, []);
 
-  const fetchDestinationsAndPackages = async () => {
+  const fetchPackages = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://wildwave-safaris-api.onrender.com/api';
-      // Fetch destinations from API
-      const destResponse = await fetch(`${apiUrl}/public/destinations`);
-      if (destResponse.ok) {
-        const destData = await destResponse.json();
-        if (Array.isArray(destData) && destData.length > 0) {
-          // Transform API destinations to match display format
-          const apiDestinations = destData.slice(0, 6).map((dest: any) => ({
-            id: dest.id,
-            name: dest.name,
-            country: dest.country || dest.category,
-            image: dest.image_url,
-            desc: dest.description,
-          }));
-          setDestinations(apiDestinations);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch destinations:', error);
-    }
-
-    try {
+      const apiUrl = API_BASE_URL;
       // Fetch packages from API
       const pkgResponse = await fetch(`${apiUrl}/public/packages`);
       if (pkgResponse.ok) {
@@ -111,7 +136,7 @@ const Index = () => {
             duration: pkg.duration,
             price: `From $${pkg.price}`,
             tag: pkg.tag,
-            image: pkg.image_url,
+            image: toImageSrc(pkg.image_url),
             desc: pkg.description,
           }));
           setPackages(apiPackages);
@@ -119,8 +144,6 @@ const Index = () => {
       }
     } catch (error) {
       console.error('Failed to fetch packages:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -134,6 +157,7 @@ const Index = () => {
               key={image}
               src={image}
               alt="Safari scene"
+              onError={withImageFallback}
               className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-[1500ms] ease-in-out ${
                 index === currentImage 
                   ? 'opacity-100 scale-100' 
@@ -275,7 +299,7 @@ const Index = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {destinations.map((dest, i) => (
+            {iconicDestinations.map((dest, i) => (
               <motion.div
                 key={dest.id || dest.name}
                 initial="hidden"
@@ -285,7 +309,12 @@ const Index = () => {
                 custom={i}
               >
                 <Link to="/destinations" className="group block relative rounded-xl overflow-hidden aspect-[4/3]">
-                  <img src={dest.image} alt={dest.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img
+                    src={dest.image}
+                    alt={dest.name}
+                    onError={withImageFallback}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-safari-charcoal/80 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <div className="flex items-center gap-2 text-safari-gold text-sm mb-1">
@@ -327,7 +356,12 @@ const Index = () => {
                 className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all"
               >
                 <div className="relative h-56 overflow-hidden">
-                  <img src={pkg.image} alt={pkg.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img
+                    src={pkg.image}
+                    alt={pkg.name}
+                    onError={withImageFallback}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                   <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                     {pkg.tag}
                   </span>
