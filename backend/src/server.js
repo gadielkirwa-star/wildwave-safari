@@ -25,9 +25,11 @@ const envOrigins = (process.env.CORS_ORIGIN || '')
   .map((s) => s.trim())
   .filter(Boolean);
 
-const configuredOrigins = process.env.NODE_ENV === 'production'
-  ? [...new Set([...envOrigins, ...defaultProductionOrigins])]
-  : (envOrigins.length > 0 ? envOrigins : ['*']);
+const configuredOrigins = envOrigins.includes('*')
+  ? ['*']
+  : (envOrigins.length > 0
+    ? [...new Set([...envOrigins, ...defaultProductionOrigins])]
+    : (process.env.NODE_ENV === 'production' ? defaultProductionOrigins : ['*']));
 
 const normalizeOrigin = (value) => {
   if (!value) {
