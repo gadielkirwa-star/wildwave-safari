@@ -20,11 +20,14 @@ const defaultProductionOrigins = [
   'https://wildwave-safaris-admin.onrender.com',
 ];
 
-const rawOrigins = process.env.CORS_ORIGIN || (
-  process.env.NODE_ENV === 'production'
-    ? defaultProductionOrigins.join(',')
-    : '*'
-);
+const envOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const configuredOrigins = process.env.NODE_ENV === 'production'
+  ? [...new Set([...envOrigins, ...defaultProductionOrigins])]
+  : (envOrigins.length > 0 ? envOrigins : ['*']);
 
 const normalizeOrigin = (value) => {
   if (!value) {
@@ -59,10 +62,7 @@ const withWwwVariants = (origin) => {
 };
 
 const allowlist = new Set();
-rawOrigins
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
+configuredOrigins
   .forEach((origin) => {
     if (origin === '*') {
       allowlist.add('*');
