@@ -13,21 +13,80 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 // Configure CORS using CORS_ORIGIN env var (comma-separated list)
-const rawOrigins = process.env.CORS_ORIGIN || '*';
-const allowedOrigins = rawOrigins.split(',').map((s) => s.trim()).filter(Boolean);
-const allowAllOrigins = allowedOrigins.includes('*');
+const defaultProductionOrigins = [
+  'https://wildwavesafaris.com',
+  'https://www.wildwavesafaris.com',
+  'https://wildwave-safaris.onrender.com',
+  'https://wildwave-safaris-admin.onrender.com',
+];
 
-app.use(cors({
+const rawOrigins = process.env.CORS_ORIGIN || (
+  process.env.NODE_ENV === 'production'
+    ? defaultProductionOrigins.join(',')
+    : '*'
+);
+
+const normalizeOrigin = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  try {
+    const url = new URL(value);
+    return `${url.protocol}//${url.host}`.toLowerCase();
+  } catch {
+    return value.trim().replace(/\/+$/, '').toLowerCase();
+  }
+};
+
+const withWwwVariants = (origin) => {
+  const normalized = normalizeOrigin(origin);
+
+  try {
+    const url = new URL(normalized);
+    const variants = new Set([normalized]);
+
+    if (url.hostname.startsWith('www.')) {
+      variants.add(`${url.protocol}//${url.hostname.slice(4)}${url.port ? `:${url.port}` : ''}`);
+    } else {
+      variants.add(`${url.protocol}//www.${url.hostname}${url.port ? `:${url.port}` : ''}`);
+    }
+
+    return variants;
+  } catch {
+    return new Set([normalized]);
+  }
+};
+
+const allowlist = new Set();
+rawOrigins
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+  .forEach((origin) => {
+    if (origin === '*') {
+      allowlist.add('*');
+      return;
+    }
+
+    withWwwVariants(origin).forEach((variant) => allowlist.add(variant));
+  });
+
+const corsOptions = {
   origin: (origin, callback) => {
-    if (allowAllOrigins || !origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowlist.has('*') || allowlist.has(normalizeOrigin(origin))) {
       callback(null, true);
       return;
     }
     callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Health check
@@ -43,6 +102,11 @@ app.use('/api/public', publicRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
+  if (err && err.message === 'Not allowed by CORS') {
+    res.status(403).json({ error: 'CORS blocked for this origin' });
+    return;
+  }
+
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });

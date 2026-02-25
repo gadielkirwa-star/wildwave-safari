@@ -72,6 +72,7 @@ Or use Render's web shell:
    PORT=10000
    DATABASE_URL=[paste Internal Database URL from Step 2]
    JWT_SECRET=your_random_secret_key_here_change_this
+   CORS_ORIGIN=https://wildwavesafaris.com,https://www.wildwavesafaris.com,https://wildwave-safaris.onrender.com,https://wildwave-safaris-admin.onrender.com
    ```
 
 5. Click **Create Web Service**
