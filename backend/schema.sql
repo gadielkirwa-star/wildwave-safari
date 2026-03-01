@@ -155,10 +155,25 @@ CREATE TABLE IF NOT EXISTS promotions (
   id SERIAL PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   description TEXT,
+  info_text TEXT,
+  image_url TEXT,
   discount_text VARCHAR(255),
   button_text VARCHAR(100),
   button_link VARCHAR(255),
   active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Team members table
+CREATE TABLE IF NOT EXISTS team_members (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(255),
+  bio TEXT,
+  image_url TEXT,
+  active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -169,6 +184,49 @@ ALTER TABLE destinations ADD COLUMN IF NOT EXISTS tags TEXT;
 ALTER TABLE destinations ADD COLUMN IF NOT EXISTS best_months TEXT;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_requests TEXT;
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS subject VARCHAR(255);
+ALTER TABLE promotions ADD COLUMN IF NOT EXISTS info_text TEXT;
+ALTER TABLE promotions ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE team_members ADD COLUMN IF NOT EXISTS role VARCHAR(255);
+ALTER TABLE team_members ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE team_members ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE team_members ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
+ALTER TABLE team_members ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
+
+-- Seed sample team members (idempotent)
+INSERT INTO team_members (name, role, bio, image_url, active, display_order)
+SELECT *
+FROM (
+  VALUES
+    (
+      'Daniel Kiptoo',
+      'Senior Safari Guide',
+      'Big-five specialist with over 10 years leading expeditions across Kenya and Tanzania.',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+      true,
+      1
+    ),
+    (
+      'Amina Njoroge',
+      'Travel Experience Manager',
+      'Designs custom safari itineraries focused on comfort, wildlife access, and family travel.',
+      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f',
+      true,
+      2
+    ),
+    (
+      'Peter Mutesi',
+      'Gorilla Trekking Specialist',
+      'Coordinates permits and logistics for unforgettable trekking journeys in Uganda and Rwanda.',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+      true,
+      3
+    )
+) AS seed(name, role, bio, image_url, active, display_order)
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM team_members t
+  WHERE LOWER(TRIM(t.name)) = LOWER(TRIM(seed.name))
+);
 
 -- Default contact settings row
 INSERT INTO contact_settings (id, phone, email, whatsapp, address, office_hours) VALUES

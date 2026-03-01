@@ -4,16 +4,33 @@ import { API_BASE_URL } from "./api";
 export const FALLBACK_IMAGE_SRC = "/placeholder.svg";
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
 
+const normalizeExternalImageUrl = (rawUrl: string) => {
+  try {
+    const parsed = new URL(rawUrl);
+
+    // Convert Dropbox share links into direct image links.
+    if (parsed.hostname.includes("dropbox.com")) {
+      parsed.searchParams.set("raw", "1");
+      parsed.searchParams.delete("dl");
+      return parsed.toString();
+    }
+
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+};
+
 export const toImageSrc = (rawUrl?: string | null) => {
   const value = (rawUrl || "").trim();
   if (!value) {
     return FALLBACK_IMAGE_SRC;
   }
   if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("data:") || value.startsWith("blob:")) {
-    return value;
+    return normalizeExternalImageUrl(value);
   }
   if (value.startsWith("//")) {
-    return `https:${value}`;
+    return normalizeExternalImageUrl(`https:${value}`);
   }
   if (value.startsWith("/")) {
     return `${API_ORIGIN}${value}`;

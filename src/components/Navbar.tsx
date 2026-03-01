@@ -13,10 +13,11 @@ const navLinks = [
   { name: "Contact", path: "/contact" },
 ];
 
+const LOGO_URL = "https://www.dropbox.com/scl/fi/hx1jqsxef1zz940ibzktk/wb.jpeg?rlkey=teccg3icp4p289k6q3g5w65w2&st=euyvj5ja&raw=1";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -27,16 +28,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setIsOpen(false);
-    const token = localStorage.getItem('customerToken');
-    setIsLoggedIn(!!token);
   }, [location]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('customerToken');
-    localStorage.removeItem('customerData');
-    setIsLoggedIn(false);
-    window.location.href = '/';
-  };
 
   return (
     <nav
@@ -47,7 +39,12 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src={LOGO_URL}
+            alt="WildWave Logo"
+            className="w-12 h-12 md:w-14 md:h-14 object-contain saturate-125 contrast-110 drop-shadow-[0_0_14px_rgba(212,165,116,0.45)] [mask-image:radial-gradient(circle_at_center,black_72%,transparent_100%)]"
+          />
           <span className={`text-2xl md:text-3xl font-display font-bold tracking-tight transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>
             Wild<span className="text-primary">Wave</span> Safaris
           </span>
@@ -70,23 +67,12 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <Link to={isLoggedIn ? "/booking" : "/auth"}>
+          <Link to="/booking">
             <Button variant="default" size="sm" className="gap-2">
               <Phone className="w-4 h-4" />
               Book Safari
             </Button>
           </Link>
-          {isLoggedIn ? (
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              Logout
-            </Button>
-          ) : (
-            <Link to="/auth">
-              <Button variant="outline" size="sm">
-                Sign In / Sign Up
-              </Button>
-            </Link>
-          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -121,23 +107,12 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <Link to={isLoggedIn ? "/booking" : "/auth"}>
+              <Link to="/booking">
                 <Button className="w-full mt-2 gap-2">
                   <Phone className="w-4 h-4" />
                   Book Safari
                 </Button>
               </Link>
-              {isLoggedIn ? (
-                <Button variant="outline" className="w-full" onClick={handleLogout}>
-                  Logout
-                </Button>
-              ) : (
-                <Link to="/auth">
-                  <Button variant="outline" className="w-full mt-2">
-                    Sign In / Sign Up
-                  </Button>
-                </Link>
-              )}
             </div>
           </motion.div>
         )}

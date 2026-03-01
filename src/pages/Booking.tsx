@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "@/lib/api";
 import { useSEO } from "@/hooks/use-seo";
 
@@ -18,9 +17,7 @@ const Booking = () => {
   });
 
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [packages, setPackages] = useState<any[]>([]);
-  const [customer, setCustomer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     customer_name: "",
@@ -34,26 +31,8 @@ const Booking = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('customerToken');
-    const customerData = localStorage.getItem('customerData');
-    
-    if (!token || !customerData) {
-      navigate('/auth', { replace: true });
-      return;
-    }
-    
-    const parsedCustomer = JSON.parse(customerData);
-    setCustomer(parsedCustomer);
-    setFormData(prev => ({
-      ...prev,
-      customer_name: parsedCustomer.name,
-      email: parsedCustomer.email,
-      phone: parsedCustomer.phone || ""
-    }));
-    
     fetchPackages();
-    setLoading(false);
-  }, [navigate]);
+  }, []);
 
   const fetchPackages = async () => {
     try {
@@ -72,6 +51,8 @@ const Booking = () => {
     } catch (error) {
       console.error('Failed to fetch packages:', error);
       setPackages([]);
+    } finally {
+      setLoading(false);
     }
   };
 

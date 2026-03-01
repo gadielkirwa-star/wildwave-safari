@@ -1,8 +1,51 @@
 import express from 'express';
 import pool from '../config/db.js';
 import { authenticate } from '../middleware/authenticate.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.resolve(__dirname, '../../uploads');
+
+fs.mkdirSync(uploadsDir, { recursive: true });
+
+const ensureTeamMembersTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS team_members (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      role VARCHAR(255),
+      bio TEXT,
+      image_url TEXT,
+      active BOOLEAN DEFAULT true,
+      display_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS role VARCHAR(255)');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS bio TEXT');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS image_url TEXT');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0');
+};
+
+const withTeamMembersTable = async (operation) => {
+  try {
+    return await operation();
+  } catch (error) {
+    // Self-heal older databases that haven't received team_members migrations yet.
+    if (error?.code !== '42P01' && error?.code !== '42703') {
+      throw error;
+    }
+    await ensureTeamMembersTable();
+    return operation();
+  }
+};
 
 const syncDestinationImageByPackageName = async (name, imageUrl) => {
   if (!name || !imageUrl) return 0;
@@ -16,6 +59,58 @@ const syncDestinationImageByPackageName = async (name, imageUrl) => {
 
   return result.rowCount || 0;
 };
+
+router.post('/upload-image', authenticate, async (req, res) => {
+  try {
+    const { imageBase64, filename } = req.body || {};
+
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return res.status(400).json({ error: 'No image payload provided' });
+    }
+
+    const dataUrlMatch = imageBase64.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.+)$/);
+    const rawBase64 = dataUrlMatch ? dataUrlMatch[2] : imageBase64;
+    const mimeType = dataUrlMatch ? dataUrlMatch[1] : '';
+
+    const mimeToExt = {
+      'image/jpeg': '.jpg',
+      'image/jpg': '.jpg',
+      'image/png': '.png',
+      'image/webp': '.webp',
+      'image/gif': '.gif',
+      'image/avif': '.avif',
+    };
+
+    const requestedExt = path.extname(String(filename || '')).toLowerCase();
+    const ext =
+      mimeToExt[mimeType] ||
+      (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'].includes(requestedExt) ? requestedExt : '.jpg');
+
+    const buffer = Buffer.from(rawBase64, 'base64');
+    if (!buffer.length) {
+      return res.status(400).json({ error: 'Invalid image payload' });
+    }
+    if (buffer.length > 8 * 1024 * 1024) {
+      return res.status(400).json({ error: 'Image too large. Maximum size is 8MB' });
+    }
+
+    const safeFilename = `img-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    const fullPath = path.join(uploadsDir, safeFilename);
+    await fs.promises.writeFile(fullPath, buffer);
+
+    const urlPath = `/uploads/${safeFilename}`;
+    const absoluteUrl = `${req.protocol}://${req.get('host')}${urlPath}`;
+
+    return res.json({
+      url: absoluteUrl,
+      path: urlPath,
+      filename: safeFilename,
+    });
+  } catch (error) {
+    console.error('Image upload error:', error);
+    return res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
 
 // Dashboard statistics
 router.get('/dashboard', authenticate, async (req, res) => {
@@ -377,12 +472,25 @@ router.get('/promotions', authenticate, async (req, res) => {
 
 router.post('/promotions', authenticate, async (req, res) => {
   try {
-    const { title, description, discount_text, button_text, button_link, active } = req.body;
-    
-    const result = await pool.query(
-      'INSERT INTO promotions (title, description, discount_text, button_text, button_link, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [title, description, discount_text, button_text, button_link, active !== false]
-    );
+    const { title, description, info_text, image_url, discount_text, button_text, button_link, active } = req.body;
+
+    let result;
+    try {
+      result = await pool.query(
+        'INSERT INTO promotions (title, description, info_text, image_url, discount_text, button_text, button_link, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+        [title, description, info_text || null, image_url || null, discount_text, button_text, button_link, active !== false]
+      );
+    } catch (insertError) {
+      // Backward compatibility for databases that have not run promotions column migration yet.
+      if (insertError?.code !== '42703') {
+        throw insertError;
+      }
+
+      result = await pool.query(
+        'INSERT INTO promotions (title, description, discount_text, button_text, button_link, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [title, description, discount_text, button_text, button_link, active !== false]
+      );
+    }
     
     res.json(result.rows[0]);
   } catch (error) {
@@ -394,12 +502,25 @@ router.post('/promotions', authenticate, async (req, res) => {
 router.put('/promotions/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, discount_text, button_text, button_link, active } = req.body;
-    
-    const result = await pool.query(
-      'UPDATE promotions SET title = $1, description = $2, discount_text = $3, button_text = $4, button_link = $5, active = $6, updated_at = CURRENT_TIMESTAMP WHERE id = $7 RETURNING *',
-      [title, description, discount_text, button_text, button_link, active, id]
-    );
+    const { title, description, info_text, image_url, discount_text, button_text, button_link, active } = req.body;
+
+    let result;
+    try {
+      result = await pool.query(
+        'UPDATE promotions SET title = $1, description = $2, info_text = $3, image_url = $4, discount_text = $5, button_text = $6, button_link = $7, active = $8, updated_at = CURRENT_TIMESTAMP WHERE id = $9 RETURNING *',
+        [title, description, info_text || null, image_url || null, discount_text, button_text, button_link, active, id]
+      );
+    } catch (updateError) {
+      // Backward compatibility for databases that have not run promotions column migration yet.
+      if (updateError?.code !== '42703') {
+        throw updateError;
+      }
+
+      result = await pool.query(
+        'UPDATE promotions SET title = $1, description = $2, discount_text = $3, button_text = $4, button_link = $5, active = $6, updated_at = CURRENT_TIMESTAMP WHERE id = $7 RETURNING *',
+        [title, description, discount_text, button_text, button_link, active, id]
+      );
+    }
     
     res.json(result.rows[0]);
   } catch (error) {
@@ -416,6 +537,97 @@ router.delete('/promotions/:id', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Delete promotion error:', error);
     res.status(500).json({ error: 'Failed to delete promotion' });
+  }
+});
+
+// Team members
+router.get('/team-members', authenticate, async (req, res) => {
+  try {
+    const result = await withTeamMembersTable(() =>
+      pool.query(
+        'SELECT * FROM team_members ORDER BY COALESCE(display_order, 0) ASC, created_at DESC, id DESC'
+      )
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Team members error:', error);
+    res.status(500).json({ error: 'Failed to fetch team members' });
+  }
+});
+
+router.post('/team-members', authenticate, async (req, res) => {
+  try {
+    const { name, role, bio, image_url, active, display_order } = req.body;
+
+    const result = await withTeamMembersTable(() =>
+      pool.query(
+        `INSERT INTO team_members (name, role, bio, image_url, active, display_order)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING *`,
+        [
+          name,
+          role || null,
+          bio || null,
+          image_url || null,
+          active !== false,
+          Number.isFinite(Number(display_order)) ? Number(display_order) : 0,
+        ]
+      )
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Create team member error:', error);
+    res.status(500).json({ error: 'Failed to create team member' });
+  }
+});
+
+router.put('/team-members/:id', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, role, bio, image_url, active, display_order } = req.body;
+
+    const result = await withTeamMembersTable(() =>
+      pool.query(
+        `UPDATE team_members
+         SET name = $1,
+             role = $2,
+             bio = $3,
+             image_url = $4,
+             active = $5,
+             display_order = $6,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $7
+         RETURNING *`,
+        [
+          name,
+          role || null,
+          bio || null,
+          image_url || null,
+          active !== false,
+          Number.isFinite(Number(display_order)) ? Number(display_order) : 0,
+          id,
+        ]
+      )
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update team member error:', error);
+    res.status(500).json({ error: 'Failed to update team member' });
+  }
+});
+
+router.delete('/team-members/:id', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await withTeamMembersTable(() =>
+      pool.query('DELETE FROM team_members WHERE id = $1', [id])
+    );
+    res.json({ message: 'Team member deleted' });
+  } catch (error) {
+    console.error('Delete team member error:', error);
+    res.status(500).json({ error: 'Failed to delete team member' });
   }
 });
 

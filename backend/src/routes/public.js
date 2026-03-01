@@ -3,6 +3,40 @@ import pool from '../config/db.js';
 
 const router = express.Router();
 
+const ensureTeamMembersTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS team_members (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      role VARCHAR(255),
+      bio TEXT,
+      image_url TEXT,
+      active BOOLEAN DEFAULT true,
+      display_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS role VARCHAR(255)');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS bio TEXT');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS image_url TEXT');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true');
+  await pool.query('ALTER TABLE team_members ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0');
+};
+
+const withTeamMembersTable = async (operation) => {
+  try {
+    return await operation();
+  } catch (error) {
+    if (error?.code !== '42P01' && error?.code !== '42703') {
+      throw error;
+    }
+    await ensureTeamMembersTable();
+    return operation();
+  }
+};
+
 router.get('/destinations', async (req, res) => {
   try {
     const result = await pool.query(
@@ -140,6 +174,23 @@ router.get('/promotions', async (req, res) => {
   } catch (error) {
     console.error('Public promotions error:', error);
     res.status(500).json({ error: 'Failed to fetch promotions' });
+  }
+});
+
+router.get('/team-members', async (req, res) => {
+  try {
+    const result = await withTeamMembersTable(() =>
+      pool.query(
+        `SELECT *
+         FROM team_members
+         WHERE COALESCE(active, true) = true
+         ORDER BY COALESCE(display_order, 0) ASC, created_at DESC, id DESC`
+      )
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Public team members error:', error);
+    res.status(500).json({ error: 'Failed to fetch team members' });
   }
 });
 
