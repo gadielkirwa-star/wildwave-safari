@@ -198,26 +198,26 @@ SELECT *
 FROM (
   VALUES
     (
-      'Daniel Kiptoo',
-      'Senior Safari Guide',
-      'Big-five specialist with over 10 years leading expeditions across Kenya and Tanzania.',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+      'Andre Silva',
+      'Logistics Coordinator',
+      'Andre oversees the day-to-day coordination of WildWave safari operations, ensuring every journey runs smoothly from arrival to departure. From vehicle scheduling and lodge confirmations to route planning and on-ground support, he manages the details that make each safari seamless. His organized approach and problem-solving mindset help deliver safe, efficient, and stress-free travel experiences for every guest.',
+      NULL,
       true,
       1
     ),
     (
-      'Amina Njoroge',
-      'Travel Experience Manager',
-      'Designs custom safari itineraries focused on comfort, wildlife access, and family travel.',
-      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f',
+      'Eliud Rotich',
+      'Travel Consultant',
+      'Eliud works closely with clients to design personalized safari experiences across Kenya and East Africa. From selecting the perfect lodges to planning seamless travel logistics, he ensures every itinerary matches the traveler''s budget, preferences, and expectations. His attention to detail and commitment to client satisfaction make every WildWave journey smooth, memorable, and stress-free.',
+      NULL,
       true,
       2
     ),
     (
-      'Peter Mutesi',
-      'Gorilla Trekking Specialist',
-      'Coordinates permits and logistics for unforgettable trekking journeys in Uganda and Rwanda.',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+      'Winny Bitok',
+      'Senior Safari Guide & Wildlife Specialist',
+      'Winny is a certified safari guide with extensive experience across the Maasai Mara, Amboseli, and Tsavo ecosystems. Known for her sharp wildlife tracking skills and deep knowledge of animal behavior, she creates immersive game drive experiences that connect guests to the true spirit of Africa. Her calm leadership and storytelling make every safari both educational and unforgettable.',
+      NULL,
       true,
       3
     )

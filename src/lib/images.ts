@@ -15,6 +15,14 @@ const normalizeExternalImageUrl = (rawUrl: string) => {
       return parsed.toString();
     }
 
+    // If older data stored local dev upload URLs, remap to active API origin.
+    if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+      const apiBase = new URL(API_ORIGIN);
+      parsed.protocol = apiBase.protocol;
+      parsed.host = apiBase.host;
+      return parsed.toString();
+    }
+
     return rawUrl;
   } catch {
     return rawUrl;

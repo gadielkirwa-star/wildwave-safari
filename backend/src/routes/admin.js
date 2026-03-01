@@ -47,6 +47,24 @@ const withTeamMembersTable = async (operation) => {
   }
 };
 
+const ensurePromotionImageColumns = async () => {
+  await pool.query('ALTER TABLE promotions ADD COLUMN IF NOT EXISTS info_text TEXT');
+  await pool.query('ALTER TABLE promotions ADD COLUMN IF NOT EXISTS image_url TEXT');
+};
+
+const withPromotionImageColumns = async (operation) => {
+  try {
+    return await operation();
+  } catch (error) {
+    // Self-heal older databases that do not yet have promotion image/info columns.
+    if (error?.code !== '42703' && error?.code !== '42P01') {
+      throw error;
+    }
+    await ensurePromotionImageColumns();
+    return operation();
+  }
+};
+
 const syncDestinationImageByPackageName = async (name, imageUrl) => {
   if (!name || !imageUrl) return 0;
 
@@ -474,23 +492,12 @@ router.post('/promotions', authenticate, async (req, res) => {
   try {
     const { title, description, info_text, image_url, discount_text, button_text, button_link, active } = req.body;
 
-    let result;
-    try {
-      result = await pool.query(
+    const result = await withPromotionImageColumns(() =>
+      pool.query(
         'INSERT INTO promotions (title, description, info_text, image_url, discount_text, button_text, button_link, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
         [title, description, info_text || null, image_url || null, discount_text, button_text, button_link, active !== false]
-      );
-    } catch (insertError) {
-      // Backward compatibility for databases that have not run promotions column migration yet.
-      if (insertError?.code !== '42703') {
-        throw insertError;
-      }
-
-      result = await pool.query(
-        'INSERT INTO promotions (title, description, discount_text, button_text, button_link, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-        [title, description, discount_text, button_text, button_link, active !== false]
-      );
-    }
+      )
+    );
     
     res.json(result.rows[0]);
   } catch (error) {
@@ -504,23 +511,12 @@ router.put('/promotions/:id', authenticate, async (req, res) => {
     const { id } = req.params;
     const { title, description, info_text, image_url, discount_text, button_text, button_link, active } = req.body;
 
-    let result;
-    try {
-      result = await pool.query(
+    const result = await withPromotionImageColumns(() =>
+      pool.query(
         'UPDATE promotions SET title = $1, description = $2, info_text = $3, image_url = $4, discount_text = $5, button_text = $6, button_link = $7, active = $8, updated_at = CURRENT_TIMESTAMP WHERE id = $9 RETURNING *',
         [title, description, info_text || null, image_url || null, discount_text, button_text, button_link, active, id]
-      );
-    } catch (updateError) {
-      // Backward compatibility for databases that have not run promotions column migration yet.
-      if (updateError?.code !== '42703') {
-        throw updateError;
-      }
-
-      result = await pool.query(
-        'UPDATE promotions SET title = $1, description = $2, discount_text = $3, button_text = $4, button_link = $5, active = $6, updated_at = CURRENT_TIMESTAMP WHERE id = $7 RETURNING *',
-        [title, description, discount_text, button_text, button_link, active, id]
-      );
-    }
+      )
+    );
     
     res.json(result.rows[0]);
   } catch (error) {
