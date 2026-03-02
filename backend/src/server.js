@@ -24,6 +24,9 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 const defaultProductionOrigins = [
   'https://wildwavesafaris.com',
   'https://www.wildwavesafaris.com',
+  'https://wildwave-safari.vercel.app',
+  'https://wildwave-safaris-admin.vercel.app',
+  'https://wildwave-admin.vercel.app',
   'https://wildwave-safaris.onrender.com',
   'https://wildwave-safaris-admin.onrender.com',
 ];

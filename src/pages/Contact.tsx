@@ -40,7 +40,7 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch(`${API_BASE_URL}/public/enquiries`, {
+      const response = await fetch(`${API_BASE_URL}/public/enquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,6 +51,12 @@ const Contact = () => {
           message: `Destination: ${formData.destination}\nTravelers: ${formData.travelers}\n\n${formData.message}`
         })
       });
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        throw new Error(errorPayload.error || `HTTP ${response.status}`);
+      }
+
       toast({ title: "Inquiry Sent!", description: "We'll get back to you within 24 hours." });
       setFormData({ name: "", email: "", phone: "", destination: "", travelers: "", message: "" });
     } catch (error) {
