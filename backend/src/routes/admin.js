@@ -12,6 +12,65 @@ const uploadsDir = path.resolve(__dirname, '../../uploads');
 
 fs.mkdirSync(uploadsDir, { recursive: true });
 
+const getUploadFilenameFromRef = (rawRef) => {
+  const value = String(rawRef || '').trim();
+  if (!value) return null;
+
+  let pathname = value;
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    try {
+      pathname = new URL(value).pathname;
+    } catch {
+      return null;
+    }
+  }
+
+  if (!pathname.startsWith('/uploads/')) {
+    return null;
+  }
+
+  const filename = path.basename(pathname);
+  if (!filename || filename.includes('..')) {
+    return null;
+  }
+
+  return filename;
+};
+
+const deleteUploadFileIfUnused = async (imageRef) => {
+  const filename = getUploadFilenameFromRef(imageRef);
+  if (!filename) return false;
+
+  const normalizedPath = `/uploads/${filename}`;
+  const countResult = await withTeamMembersTable(() =>
+    pool.query(
+      `SELECT COUNT(*)::int AS count
+       FROM team_members
+       WHERE image_url IS NOT NULL
+         AND (
+           image_url = $1
+           OR image_url LIKE $2
+         )`,
+      [normalizedPath, `%/uploads/${filename}`]
+    )
+  );
+
+  if ((countResult.rows[0]?.count || 0) > 0) {
+    return false;
+  }
+
+  const fullPath = path.join(uploadsDir, filename);
+  try {
+    await fs.promises.unlink(fullPath);
+    return true;
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+};
+
 const ensureTeamMembersTable = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS team_members (
@@ -127,6 +186,21 @@ router.post('/upload-image', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Image upload error:', error);
     return res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
+router.post('/delete-image', authenticate, async (req, res) => {
+  try {
+    const { imageUrl } = req.body || {};
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return res.status(400).json({ error: 'imageUrl is required' });
+    }
+
+    await deleteUploadFileIfUnused(imageUrl);
+    return res.json({ message: 'Image removed (if present and safe to delete)' });
+  } catch (error) {
+    console.error('Delete image error:', error);
+    return res.status(500).json({ error: 'Failed to delete image' });
   }
 });
 
@@ -583,6 +657,16 @@ router.put('/team-members/:id', authenticate, async (req, res) => {
     const { id } = req.params;
     const { name, role, bio, image_url, active, display_order } = req.body;
 
+    const existingResult = await withTeamMembersTable(() =>
+      pool.query('SELECT image_url FROM team_members WHERE id = $1', [id])
+    );
+    const existing = existingResult.rows[0];
+    if (!existing) {
+      return res.status(404).json({ error: 'Team member not found' });
+    }
+    const previousImage = existing.image_url || null;
+    const nextImage = image_url || null;
+
     const result = await withTeamMembersTable(() =>
       pool.query(
         `UPDATE team_members
@@ -607,6 +691,10 @@ router.put('/team-members/:id', authenticate, async (req, res) => {
       )
     );
 
+    if (previousImage && previousImage !== nextImage) {
+      await deleteUploadFileIfUnused(previousImage);
+    }
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Update team member error:', error);
@@ -617,9 +705,18 @@ router.put('/team-members/:id', authenticate, async (req, res) => {
 router.delete('/team-members/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    await withTeamMembersTable(() =>
-      pool.query('DELETE FROM team_members WHERE id = $1', [id])
+    const existingResult = await withTeamMembersTable(() =>
+      pool.query('SELECT image_url FROM team_members WHERE id = $1', [id])
     );
+    const existing = existingResult.rows[0];
+    if (!existing) {
+      return res.status(404).json({ error: 'Team member not found' });
+    }
+
+    await withTeamMembersTable(() => pool.query('DELETE FROM team_members WHERE id = $1', [id]));
+    if (existing.image_url) {
+      await deleteUploadFileIfUnused(existing.image_url);
+    }
     res.json({ message: 'Team member deleted' });
   } catch (error) {
     console.error('Delete team member error:', error);

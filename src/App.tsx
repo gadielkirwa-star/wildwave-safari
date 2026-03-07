@@ -8,7 +8,6 @@ import { useEffect, useLayoutEffect } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PromotionalPopup from "./components/PromotionalPopup";
-import TeamSection from "./components/TeamSection";
 import Index from "./pages/Index";
 import Destinations from "./pages/Destinations";
 import Packages from "./pages/Packages";
@@ -60,7 +59,6 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <TeamSection />
         <Footer />
         <a
           href="https://wa.me/254713241666"
