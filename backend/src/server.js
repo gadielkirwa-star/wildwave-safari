@@ -19,6 +19,9 @@ const uploadsDir = path.resolve(__dirname, '../uploads');
 
 fs.mkdirSync(uploadsDir, { recursive: true });
 
+// Respect X-Forwarded-* headers when running behind a proxy (Render/Vercel).
+app.set('trust proxy', 1);
+
 // Middleware
 // Configure CORS using CORS_ORIGIN env var (comma-separated list)
 const defaultProductionOrigins = [

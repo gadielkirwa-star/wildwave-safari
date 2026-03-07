@@ -176,7 +176,10 @@ router.post('/upload-image', authenticate, async (req, res) => {
     await fs.promises.writeFile(fullPath, buffer);
 
     const urlPath = `/uploads/${safeFilename}`;
-    const absoluteUrl = `${req.protocol}://${req.get('host')}${urlPath}`;
+    const forwardedProto = String(req.get('x-forwarded-proto') || '').split(',')[0].trim();
+    const resolvedProto = forwardedProto || req.protocol || 'https';
+    const protocol = resolvedProto === 'http' && process.env.NODE_ENV === 'production' ? 'https' : resolvedProto;
+    const absoluteUrl = `${protocol}://${req.get('host')}${urlPath}`;
 
     return res.json({
       url: absoluteUrl,

@@ -8,6 +8,16 @@ const normalizeExternalImageUrl = (rawUrl: string) => {
   try {
     const parsed = new URL(rawUrl);
 
+    // Avoid mixed-content issues when the site is loaded over HTTPS.
+    if (
+      parsed.protocol === "http:" &&
+      (parsed.hostname.endsWith(".onrender.com") ||
+        (typeof window !== "undefined" && window.location.protocol === "https:"))
+    ) {
+      parsed.protocol = "https:";
+      return parsed.toString();
+    }
+
     // Convert Dropbox share links into direct image links.
     if (parsed.hostname.includes("dropbox.com")) {
       parsed.searchParams.set("raw", "1");
