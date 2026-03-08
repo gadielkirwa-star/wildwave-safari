@@ -13,12 +13,12 @@ async function checkAdmin() {
     console.log('Users in database:');
     console.table(result.rows);
     
-    console.log('\n\nChecking if admin@wildwave.com exists...');
-    const adminResult = await pool.query('SELECT id, name, email, role FROM users WHERE email = $1', ['admin@wildwave.com']);
+    console.log('\n\nChecking if admin@wildwavesafaris.com exists...');
+    const adminResult = await pool.query('SELECT id, name, email, role FROM users WHERE email = $1', ['admin@wildwavesafaris.com']);
     if (adminResult.rows.length === 0) {
-      console.log('❌ admin@wildwave.com does NOT exist in database');
+      console.log('❌ admin@wildwavesafaris.com does NOT exist in database');
     } else {
-      console.log('✓ admin@wildwave.com EXISTS');
+      console.log('✓ admin@wildwavesafaris.com EXISTS');
       console.table(adminResult.rows);
     }
     

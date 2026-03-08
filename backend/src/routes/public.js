@@ -1,7 +1,13 @@
 import express from 'express';
+import { Readable } from 'stream';
 import pool from '../config/db.js';
 
 const router = express.Router();
+const ALLOWED_VIDEO_HOSTS = new Set([
+  'pixabay.com',
+  'cdn.pixabay.com',
+  'player.vimeo.com',
+]);
 
 const ensureTeamMembersTable = async () => {
   await pool.query(`
@@ -191,6 +197,78 @@ router.get('/team-members', async (req, res) => {
   } catch (error) {
     console.error('Public team members error:', error);
     res.status(500).json({ error: 'Failed to fetch team members' });
+  }
+});
+
+router.get('/video-proxy', async (req, res) => {
+  try {
+    const rawUrl = `${req.query.url || ''}`.trim();
+    if (!rawUrl) {
+      return res.status(400).json({ error: 'Missing url query parameter' });
+    }
+
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(rawUrl);
+    } catch {
+      return res.status(400).json({ error: 'Invalid video URL' });
+    }
+
+    const protocolAllowed = parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:';
+    if (!protocolAllowed) {
+      return res.status(400).json({ error: 'Unsupported URL protocol' });
+    }
+
+    if (!ALLOWED_VIDEO_HOSTS.has(parsedUrl.hostname)) {
+      return res.status(400).json({ error: 'Video host is not allowed' });
+    }
+
+    const requestHeaders = {
+      'User-Agent': 'Mozilla/5.0',
+      Accept: 'video/*,*/*;q=0.8',
+      Referer: 'https://pixabay.com/',
+    };
+
+    const range = req.headers.range;
+    if (range) {
+      requestHeaders.Range = range;
+    }
+
+    const upstream = await fetch(parsedUrl.toString(), { headers: requestHeaders });
+    if (!upstream.ok && upstream.status !== 206) {
+      return res.status(upstream.status).json({ error: 'Unable to fetch video source' });
+    }
+
+    const passthroughHeaders = [
+      'content-type',
+      'content-length',
+      'content-range',
+      'accept-ranges',
+      'cache-control',
+      'last-modified',
+      'etag',
+    ];
+
+    passthroughHeaders.forEach((header) => {
+      const value = upstream.headers.get(header);
+      if (value) {
+        res.setHeader(header, value);
+      }
+    });
+    if (!upstream.headers.get('cache-control')) {
+      res.setHeader('cache-control', 'public, max-age=3600');
+    }
+
+    res.status(upstream.status);
+
+    if (!upstream.body) {
+      return res.end();
+    }
+
+    Readable.fromWeb(upstream.body).pipe(res);
+  } catch (error) {
+    console.error('Public video proxy error:', error);
+    res.status(500).json({ error: 'Failed to proxy video' });
   }
 });
 

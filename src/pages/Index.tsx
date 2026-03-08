@@ -100,11 +100,14 @@ const fadeUp = {
   }),
 };
 
-const heroImages = [
-  heroImage,
-  'https://i.pinimg.com/736x/d0/0f/35/d00f350b62c7de4f504fd8364b425e13.jpg',
-  'https://i.pinimg.com/736x/9e/fc/8e/9efc8e8b2c42b805c4e84d4d1ea3bf7f.jpg',
-  'https://i.pinimg.com/736x/4e/f9/14/4ef914daf2c5e4f103887c8bf6bb0220.jpg'
+const toProxiedVideoUrl = (url: string) =>
+  `${API_BASE_URL}/public/video-proxy?url=${encodeURIComponent(url)}`;
+
+const heroMedia = [
+  { type: "image", src: heroImage },
+  { type: "video", src: toProxiedVideoUrl("https://pixabay.com/videos/download/video-114145_medium.mp4") },
+  { type: "video", src: toProxiedVideoUrl("https://pixabay.com/videos/download/video-119527_medium.mp4") },
+  { type: "video", src: toProxiedVideoUrl("https://pixabay.com/videos/download/video-126212_medium.mp4") },
 ];
 
 const Index = () => {
@@ -140,13 +143,23 @@ const Index = () => {
 
   const [currentImage, setCurrentImage] = useState(0);
   const [packages, setPackages] = useState<any[]>(fallbackPackages);
+  const [failedVideoSlides, setFailedVideoSlides] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
+      setCurrentImage((prev) => (prev + 1) % heroMedia.length);
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
+
+  const markVideoFailed = (index: number) => {
+    setFailedVideoSlides((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  };
 
   useEffect(() => {
     fetchPackages();
@@ -183,20 +196,40 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
-          {heroImages.map((image, index) => (
-            <img
-              key={image}
-              src={image}
-              alt="Safari scene"
-              onError={withImageFallback}
-              className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-[1500ms] ease-in-out ${
-                index === currentImage 
-                  ? 'opacity-100 scale-100' 
-                  : index === (currentImage - 1 + heroImages.length) % heroImages.length
-                  ? 'opacity-0 scale-110'
-                  : 'opacity-0 scale-95'
-              }`}
-            />
+          {heroMedia.map((media, index) => (
+            media.type === "video" && !failedVideoSlides.has(index) ? (
+              <video
+                key={media.src}
+                src={media.src}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                onError={() => markVideoFailed(index)}
+                className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-[1500ms] ease-in-out ${
+                  index === currentImage
+                    ? 'opacity-100 scale-100'
+                    : index === (currentImage - 1 + heroMedia.length) % heroMedia.length
+                    ? 'opacity-0 scale-110'
+                    : 'opacity-0 scale-95'
+                }`}
+              />
+            ) : (
+              <img
+                key={`${media.src}-fallback`}
+                src={media.type === "video" ? heroImage : media.src}
+                alt="Safari scene"
+                onError={withImageFallback}
+                className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-[1500ms] ease-in-out ${
+                  index === currentImage
+                    ? 'opacity-100 scale-100'
+                    : index === (currentImage - 1 + heroMedia.length) % heroMedia.length
+                    ? 'opacity-0 scale-110'
+                    : 'opacity-0 scale-95'
+                }`}
+              />
+            )
           ))}
           <div className="absolute inset-0 bg-gradient-to-b from-safari-charcoal/60 via-safari-charcoal/30 to-safari-charcoal/70" />
         </div>

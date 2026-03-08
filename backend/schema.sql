@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS contact_settings (
 
 -- Insert admin user (password: admin123)
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'admin@wildwavesafaris.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEHaSuu', 'admin')
+('Admin User', 'admin@wildwavesafaris.com', '$2b$12$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert sample destinations

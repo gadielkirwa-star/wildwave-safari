@@ -12,13 +12,13 @@ echo ""
 
 # Create or update admin user with correct password hash
 # Password: admin123
-# Hash: $2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEHaSuu
+# Hash: $2b$12$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC
 
 PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'admin@wildwavesafaris.com', '\$2b\$12\$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEHaSuu', 'admin')
+('Admin User', 'admin@wildwavesafaris.com', '\$2b\$12\$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC', 'admin')
 ON CONFLICT (email) DO UPDATE SET 
-  password = '\$2b\$12\$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEHaSuu',
+  password = '\$2b\$12\$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC',
   name = 'Admin User',
   role = 'admin';
 "

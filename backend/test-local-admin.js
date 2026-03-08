@@ -18,7 +18,7 @@ async function checkAdmin() {
       
       const insertResult = await pool.query(
         "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, email, role",
-        ['Admin User', 'admin@wildwavesafaris.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEHaSuu', 'admin']
+        ['Admin User', 'admin@wildwavesafaris.com', '$2b$12$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC', 'admin']
       );
       console.log('✅ Admin user created!');
       console.table(insertResult.rows);
