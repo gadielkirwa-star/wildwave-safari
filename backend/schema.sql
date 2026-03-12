@@ -87,9 +87,9 @@ CREATE TABLE IF NOT EXISTS contact_settings (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insert admin user (password: winny@2026)
+-- Insert admin user (password: Cheptanui19990.)
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'wildwavesafaris@gmail.com', '$2b$12$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO', 'admin')
+('Admin User', 'wildwavesafaris@gmail.com', '$2b$12$ixdo8pP8pyAafbVB.vUTR.Pm9JajzkeoEKUdQ1Q9R9AIBwN2Fwuue', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert sample destinations

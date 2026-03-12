@@ -11,14 +11,14 @@ echo "🔧 Fixing admin user login..."
 echo ""
 
 # Create or update admin user with correct password hash
-# Password: winny@2026
-# Hash: $2b$12$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO
+# Password: Cheptanui19990.
+# Hash: $2b$12$ixdo8pP8pyAafbVB.vUTR.Pm9JajzkeoEKUdQ1Q9R9AIBwN2Fwuue
 
 PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'wildwavesafaris@gmail.com', '\$2b\$12\$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO', 'admin')
+('Admin User', 'wildwavesafaris@gmail.com', '\$2b\$12\$ixdo8pP8pyAafbVB.vUTR.Pm9JajzkeoEKUdQ1Q9R9AIBwN2Fwuue', 'admin')
 ON CONFLICT (email) DO UPDATE SET 
-  password = '\$2b\$12\$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO',
+  password = '\$2b\$12\$ixdo8pP8pyAafbVB.vUTR.Pm9JajzkeoEKUdQ1Q9R9AIBwN2Fwuue',
   name = 'Admin User',
   role = 'admin';
 "
@@ -27,7 +27,7 @@ echo "✅ Admin user setup complete!"
 echo ""
 echo "Login credentials:"
 echo "  Email:    wildwavesafaris@gmail.com"
-echo "  Password: winny@2026"
+echo "  Password: Cheptanui19990."
 echo ""
 
 # Verify user was created/updated

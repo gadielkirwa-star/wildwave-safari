@@ -13,7 +13,7 @@ echo "Setting up admin user in production database..."
 PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
 DELETE FROM users WHERE email IN ('admin@wildwavesafaris.com', 'wildwavesafaris@gmail.com');
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'wildwavesafaris@gmail.com', '\$2b\$12\$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO', 'admin');
+('Admin User', 'wildwavesafaris@gmail.com', '\$2b\$12\$ixdo8pP8pyAafbVB.vUTR.Pm9JajzkeoEKUdQ1Q9R9AIBwN2Fwuue', 'admin');
 "
 
 echo "✅ Admin user setup complete"
@@ -21,4 +21,4 @@ echo ""
 echo "Testing login..."
 curl -s -X POST https://wildwave-safaris-api.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"wildwavesafaris@gmail.com","password":"winny@2026"}' | grep -o '"token"' && echo "✅ Login successful!" || echo "❌ Login failed"
+  -d '{"email":"wildwavesafaris@gmail.com","password":"Cheptanui19990."}' | grep -o '"token"' && echo "✅ Login successful!" || echo "❌ Login failed"
