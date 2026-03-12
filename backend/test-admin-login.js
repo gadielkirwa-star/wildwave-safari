@@ -4,8 +4,8 @@ const http = require('http');
 
 // Test admin login
 const postData = JSON.stringify({
-  email: 'admin@wildwavesafaris.com',
-  password: 'admin123'
+  email: 'wildwavesafaris@gmail.com',
+  password: 'winny@2026'
 });
 
 const options = {
@@ -20,8 +20,8 @@ const options = {
 };
 
 console.log('Testing admin login...');
-console.log('Email: admin@wildwavesafaris.com');
-console.log('Password: admin123');
+console.log('Email: wildwavesafaris@gmail.com');
+console.log('Password: winny@2026');
 console.log('');
 
 const https = require('https');

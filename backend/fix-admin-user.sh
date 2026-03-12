@@ -11,14 +11,14 @@ echo "🔧 Fixing admin user login..."
 echo ""
 
 # Create or update admin user with correct password hash
-# Password: admin123
-# Hash: $2b$12$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC
+# Password: winny@2026
+# Hash: $2b$12$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO
 
 PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'admin@wildwavesafaris.com', '\$2b\$12\$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC', 'admin')
+('Admin User', 'wildwavesafaris@gmail.com', '\$2b\$12\$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO', 'admin')
 ON CONFLICT (email) DO UPDATE SET 
-  password = '\$2b\$12\$FH3eV/.QX8fwn27/1D5CyO57Q39Z6Ts2glf2L00kMgkKpFvZHQhuC',
+  password = '\$2b\$12\$97kyaXiVAgaew6IwRNjDfO68uoV.fB9EeMTrl619z1yA8KSjXbWHO',
   name = 'Admin User',
   role = 'admin';
 "
@@ -26,14 +26,14 @@ ON CONFLICT (email) DO UPDATE SET
 echo "✅ Admin user setup complete!"
 echo ""
 echo "Login credentials:"
-echo "  Email:    admin@wildwavesafaris.com"
-echo "  Password: admin123"
+echo "  Email:    wildwavesafaris@gmail.com"
+echo "  Password: winny@2026"
 echo ""
 
 # Verify user was created/updated
 echo "🔍 Verifying..."
 PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
-SELECT 'Found: ' || email || ' (Role: ' || role || ')' FROM users WHERE email = 'admin@wildwavesafaris.com';
+SELECT 'Found: ' || email || ' (Role: ' || role || ')' FROM users WHERE email = 'wildwavesafaris@gmail.com';
 "
 
 echo ""
