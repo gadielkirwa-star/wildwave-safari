@@ -8,6 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { API_BASE_URL } from "@/lib/api";
 import { useSEO } from "@/hooks/use-seo";
 
+type PackageOption = {
+  id: number;
+  name: string;
+  duration?: string | null;
+};
+
 const Booking = () => {
   useSEO({
     title: "Safari Booking | WildWave Safaris",
@@ -17,7 +23,7 @@ const Booking = () => {
   });
 
   const { toast } = useToast();
-  const [packages, setPackages] = useState<any[]>([]);
+  const [packages, setPackages] = useState<PackageOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     customer_name: "",

@@ -7,6 +7,26 @@ import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
 import { useSEO } from "@/hooks/use-seo";
 
+type PackageResponse = {
+  id: number;
+  name: string;
+  duration?: string | null;
+  price?: number | string | null;
+  tag?: string | null;
+  image_url?: string | null;
+  description?: string | null;
+};
+
+type HomepagePackage = {
+  id?: number;
+  name: string;
+  duration: string;
+  price: string;
+  tag: string;
+  image: string;
+  desc: string;
+};
+
 import heroImage from "@/assets/hero-safari.jpg";
 import gorillaImg from "@/assets/gorilla-trekking.jpg";
 import balloonImg from "@/assets/balloon-safari.jpg";
@@ -71,7 +91,7 @@ const iconicDestinations = [
   },
 ];
 
-const fallbackPackages = [
+const fallbackPackages: HomepagePackage[] = [
   { name: "Classic Game Drive", duration: "7 Days", price: "From $2,800", tag: "Most Popular", image: masaiMaraImg, desc: "The quintessential East African safari through Kenya's iconic parks." },
   { name: "Gorilla Trekking", duration: "5 Days", price: "From $4,200", tag: "Exclusive", image: gorillaImg, desc: "Trek through misty forests to meet mountain gorillas face-to-face." },
   { name: "Balloon Safari", duration: "10 Days", price: "From $5,500", tag: "Premium", image: balloonImg, desc: "Float above the Serengeti at sunrise for a once-in-a-lifetime experience." },
@@ -142,7 +162,7 @@ const Index = () => {
   });
 
   const [currentImage, setCurrentImage] = useState(0);
-  const [packages, setPackages] = useState<any[]>(fallbackPackages);
+  const [packages, setPackages] = useState<HomepagePackage[]>(fallbackPackages);
   const [failedVideoSlides, setFailedVideoSlides] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -174,7 +194,7 @@ const Index = () => {
         const pkgData = await pkgResponse.json();
         if (Array.isArray(pkgData) && pkgData.length > 0) {
           // Transform API packages to match display format
-          const apiPackages = pkgData.slice(0, 4).map((pkg: any) => ({
+          const apiPackages = (pkgData as PackageResponse[]).slice(0, 4).map((pkg) => ({
             id: pkg.id,
             name: pkg.name,
             duration: pkg.duration,

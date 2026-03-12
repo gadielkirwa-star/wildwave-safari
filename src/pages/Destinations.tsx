@@ -7,6 +7,28 @@ import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
 import { useSEO } from "@/hooks/use-seo";
 
+type DestinationResponse = {
+  id: number;
+  name: string;
+  country?: string | null;
+  category?: string | null;
+  tags?: string | null;
+  image_url?: string | null;
+  description?: string | null;
+  best_months?: string | null;
+};
+
+type DestinationCard = {
+  id: number;
+  name: string;
+  country: string;
+  region: string;
+  category: string[];
+  image: string;
+  desc: string;
+  bestMonths: string;
+};
+
 const regions = ["All", "Kenya", "Tanzania", "Uganda", "Rwanda"];
 const categories = ["All", "Luxury", "Budget", "Photo Safaris", "Family Safaris"];
 const countryOrder = ["Kenya", "Tanzania", "Uganda", "Rwanda"];
@@ -30,7 +52,7 @@ const Destinations = () => {
 
   const [activeRegion, setActiveRegion] = useState("All");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [allDestinations, setAllDestinations] = useState<any[]>([]);
+  const [allDestinations, setAllDestinations] = useState<DestinationCard[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,7 +68,7 @@ const Destinations = () => {
       const data = await response.json();
 
       // Transform and de-duplicate API data so repeated seed rows don't appear twice.
-      const transformed = data.map((dest: any) => ({
+      const transformed = (data as DestinationResponse[]).map((dest) => ({
         id: dest.id,
         name: dest.name,
         country: dest.country || dest.category,
@@ -57,9 +79,9 @@ const Destinations = () => {
         bestMonths: dest.best_months || 'Year-round'
       }));
 
-      const deduped = transformed.filter((dest: any, index: number, arr: any[]) => {
+      const deduped = transformed.filter((dest, index, arr) => {
         const key = `${dest.name}::${dest.country}::${dest.image}`;
-        return index === arr.findIndex((item: any) => `${item.name}::${item.country}::${item.image}` === key);
+        return index === arr.findIndex((item) => `${item.name}::${item.country}::${item.image}` === key);
       });
 
       setAllDestinations(deduped);

@@ -5,8 +5,20 @@ import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '@/lib/api'
 import { toImageSrc, withImageFallback } from '@/lib/images'
 
+type Promotion = {
+  id: number
+  title: string
+  description?: string | null
+  info_text?: string | null
+  image_url?: string | null
+  discount_text?: string | null
+  button_text?: string | null
+  button_link?: string | null
+  active: boolean
+}
+
 export default function PromotionalPopup() {
-  const [promotions, setPromotions] = useState<any[]>([])
+  const [promotions, setPromotions] = useState<Promotion[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -110,7 +122,7 @@ export default function PromotionalPopup() {
                 {promotion.image_url && (
                   <div className="relative mb-4">
                     <Link
-                      to={promotion.button_link}
+                      to={promotion.button_link || '/contact'}
                       onClick={() => {
                         handleClose();
                       }}
@@ -135,13 +147,13 @@ export default function PromotionalPopup() {
                   </p>
                 )}
                 <Link
-                  to={promotion.button_link}
+                  to={promotion.button_link || '/contact'}
                   onClick={() => {
                     handleClose();
                   }}
                   className="hidden md:block w-full text-center px-6 py-3 bg-safari-gold hover:bg-safari-terracotta text-white font-bold rounded-xl transition-colors"
                 >
-                  {promotion.button_text}
+                  {promotion.button_text || 'Book Now'}
                 </Link>
               </div>
             </div>

@@ -17,6 +17,14 @@ const partners = [
 ];
 
 const Footer = () => {
+  const quickLinks = [
+    { label: "Destinations", path: "/destinations" },
+    { label: "Safari Packages", path: "/packages" },
+    { label: "About Us", path: "/about" },
+    { label: "Blog", path: "/blog" },
+    { label: "Contact", path: "/contact" },
+  ];
+
   const socialLinks = [
     { icon: Instagram, href: "#" },
     { icon: Facebook, href: "https://www.facebook.com/share/16kHvGDuwT/" },
@@ -75,10 +83,10 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold text-safari-cream mb-4">Quick Links</h4>
             <ul className="space-y-3 text-sm">
-              {["Destinations", "Safari Packages", "About Us", "Blog", "Contact"].map((item) => (
-                <li key={item}>
-                  <Link to={`/${item.toLowerCase().replace(/\s+/g, '-').replace('us','')}`} className="opacity-80 hover:opacity-100 hover:text-primary transition-all">
-                    {item}
+              {quickLinks.map((item) => (
+                <li key={item.path}>
+                  <Link to={item.path} className="opacity-80 hover:opacity-100 hover:text-primary transition-all">
+                    {item.label}
                   </Link>
                 </li>
               ))}

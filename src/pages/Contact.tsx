@@ -8,6 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { API_BASE_URL } from "@/lib/api";
 import { useSEO } from "@/hooks/use-seo";
 
+type ContactInfo = {
+  phone?: string | null;
+  email?: string | null;
+  whatsapp?: string | null;
+  address?: string | null;
+  office_hours?: string | null;
+};
+
 const Contact = () => {
   useSEO({
     title: "Contact WildWave Safaris | Plan Your Safari",
@@ -18,7 +26,7 @@ const Contact = () => {
   });
 
   const { toast } = useToast();
-  const [contactInfo, setContactInfo] = useState<any>({});
+  const [contactInfo, setContactInfo] = useState<ContactInfo>({});
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", destination: "", travelers: "", message: "",
   });

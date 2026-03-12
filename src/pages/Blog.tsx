@@ -5,6 +5,16 @@ import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
 import { useSEO } from "@/hooks/use-seo";
 
+type BlogPost = {
+  id: number;
+  title: string;
+  category?: string | null;
+  excerpt?: string | null;
+  image_url?: string | null;
+  read_time?: string | null;
+  created_at: string;
+};
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5 } }),
@@ -19,7 +29,7 @@ const Blog = () => {
     keywords: ["safari blog", "east africa travel guide", "safari tips"],
   });
 
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

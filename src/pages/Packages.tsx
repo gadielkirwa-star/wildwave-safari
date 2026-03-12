@@ -7,6 +7,20 @@ import { API_BASE_URL } from "@/lib/api";
 import { toImageSrc, withImageFallback } from "@/lib/images";
 import { useSEO } from "@/hooks/use-seo";
 
+type PackageResponse = {
+  id: number;
+  name: string;
+  tag?: string | null;
+  duration?: string | null;
+  type?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  includes?: string | null;
+  excludes?: string | null;
+  itinerary?: string | null;
+  price?: number | string | null;
+};
+
 const types = ["All", "Classic", "Gorilla Trekking", "Balloon Safaris", "Beach Add-Ons"];
 
 const fadeUp = {
@@ -24,7 +38,7 @@ const Packages = () => {
   });
 
   const [activeType, setActiveType] = useState("All");
-  const [packages, setPackages] = useState<any[]>([]);
+  const [packages, setPackages] = useState<PackageResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

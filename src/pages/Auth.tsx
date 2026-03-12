@@ -48,8 +48,9 @@ const Auth = () => {
       
       toast({ title: "Success!", description: isLogin ? "Welcome back!" : "Account created successfully!" });
       navigate('/booking');
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Authentication failed";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
   };
 
