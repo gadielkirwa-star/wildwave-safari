@@ -34,21 +34,24 @@ const Footer = () => {
   return (
     <footer className="bg-safari-charcoal text-safari-sand">
       {/* Partners Section */}
-      <div className="border-b border-safari-warm-brown bg-safari-charcoal/50">
-        <div className="container mx-auto px-4 py-8">
-          <h3 className="text-center text-safari-cream font-display font-semibold text-xl mb-6">Our Partners</h3>
-          <div className="relative overflow-hidden bg-white/10 rounded-lg py-4">
-            <div className="flex animate-scroll gap-12 items-center">
-              {[...partners, ...partners].map((partner, index) => (
-                <div key={index} className={`flex-shrink-0 w-48 h-24 flex items-center justify-center rounded p-3 ${partner.name === 'KWS' || partner.name === 'Safari Bookings' ? 'bg-transparent' : 'bg-white'}`}>
+      <div className="border-b border-safari-warm-brown/30 bg-safari-charcoal py-12 overflow-hidden">
+        <div className="container mx-auto px-4 mb-8">
+          <h3 className="text-center text-safari-gold/80 font-display font-medium text-sm tracking-[0.2em] uppercase">Trusted By Leading Partners</h3>
+        </div>
+        <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] py-2">
+          <div className="flex w-max animate-scroll hover:[animation-play-state:paused]" style={{ animationDuration: '40s' }}>
+            {[...partners, ...partners].map((partner, index) => (
+              <div key={index} className="flex-shrink-0 w-[200px] md:w-[260px] px-4 flex items-center justify-center">
+                <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-center w-full h-[90px] md:h-[110px] hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                   <img 
                     src={partner.logo} 
                     alt={partner.name} 
+                    title={partner.name}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

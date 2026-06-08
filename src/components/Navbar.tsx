@@ -43,7 +43,7 @@ const Navbar = () => {
           <img
             src={LOGO_URL}
             alt="WildWave Logo"
-            className="w-12 h-12 md:w-14 md:h-14 object-contain saturate-125 contrast-110 drop-shadow-[0_0_14px_rgba(212,165,116,0.45)] [mask-image:radial-gradient(circle_at_center,black_72%,transparent_100%)]"
+            className="w-10 h-10 md:w-12 md:h-12 object-cover object-left rounded-full shadow-md border-2 border-white/80 transition-transform duration-300 hover:scale-110 hover:shadow-lg bg-white"
           />
           <span className={`text-2xl md:text-3xl font-display font-bold tracking-tight transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>
             Wild<span className="text-primary">Wave</span> Safaris
