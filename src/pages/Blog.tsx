@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSEO } from "@/hooks/use-seo";
 import { API_BASE_URL } from "@/lib/api";
@@ -15,42 +15,12 @@ type BlogPost = {
   created_at: string;
 };
 
-// Layout pattern to create the asymmetric Pinterest grid
-const getLayoutClass = (index: number, total: number) => {
-  if (index === 0) return "card-hero";
-  if (index === total - 1 && total > 3) return "card-last md:flex-row !bg-white"; // Last post spans horizontal
-  
-  // Repeating pattern for the middle cards
-  const pattern = [
-    "card-tall",
-    "card-normal",
-    "card-normal",
-    "card-wide",
-    "card-normal",
-    "card-normal",
-    "card-tall",
-    "card-wide"
-  ];
-  
-  return pattern[(index - 1) % pattern.length];
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05
-    }
-  }
-};
-
 const fadeUpItem = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 30 },
   visible: { 
     opacity: 1, 
     y: 0, 
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } 
+    transition: { duration: 0.5, ease: "easeOut" } 
   }
 };
 
@@ -64,6 +34,7 @@ const Blog = () => {
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -92,8 +63,17 @@ const Blog = () => {
     );
   }
 
-  const featuredPost = posts[0];
-  const remainingPosts = posts.slice(1);
+  // Generate unique categories for the filter tabs
+  const categories = ["ALL", ...Array.from(new Set(posts.map(p => p.category).filter(Boolean)))];
+
+  const filteredPosts = activeCategory === "ALL" 
+    ? posts 
+    : posts.filter(p => p.category === activeCategory);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
 
   return (
     <div className="min-h-screen bg-[#F7F3EE] pt-24 font-['DM_Sans',sans-serif]">
@@ -107,150 +87,81 @@ const Blog = () => {
             Stories from the <span className="italic text-[#D4A84B]">Wild</span>
           </h1>
           <p className="text-[#6B5744] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Dispatches from the most extraordinary corners of East Africa — written by those who lived them.
+            Expert guides, inspiring stories, and travel advice from the heart of East Africa.
           </p>
           
-          {/* Filter Tabs */}
+          {/* Dynamic Filter Tabs */}
           <div className="flex flex-wrap justify-center gap-4 mt-12 font-['Space_Mono',monospace] text-xs tracking-widest text-[#6B5744]">
-            <button className="px-4 py-2 text-[#C1440E] border-b border-[#C1440E] transition-colors">ALL</button>
-            <button className="px-4 py-2 hover:text-[#2C1A0E] transition-colors">KENYA</button>
-            <button className="px-4 py-2 hover:text-[#2C1A0E] transition-colors">TANZANIA</button>
-            <button className="px-4 py-2 hover:text-[#2C1A0E] transition-colors">UGANDA</button>
-            <button className="px-4 py-2 hover:text-[#2C1A0E] transition-colors">ISLANDS</button>
+            {categories.map((cat) => (
+              <button 
+                key={cat}
+                onClick={() => setActiveCategory(cat as string)}
+                className={`px-4 py-2 transition-colors border-b-2 ${
+                  activeCategory === cat 
+                    ? 'text-[#C1440E] border-[#C1440E]' 
+                    : 'border-transparent hover:text-[#2C1A0E] hover:border-[#2C1A0E]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Blog Grid Section */}
+      {/* Masonry Blog Grid Section */}
       <section className="pb-24 px-4">
         <div className="container mx-auto max-w-[1400px]">
-          {posts.length === 0 ? (
-            <p className="text-center text-[#6B5744] py-12">No stories published yet. Check back soon.</p>
+          {filteredPosts.length === 0 ? (
+            <p className="text-center text-[#6B5744] py-12">No stories found in this category.</p>
           ) : (
-            <motion.div 
-              className="blog-grid"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              {/* Featured Post (Hero) */}
-              {featuredPost && (
+            <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+              {filteredPosts.map((post) => (
                 <motion.article 
+                  key={post.id}
                   variants={fadeUpItem}
-                  className={`blog-card ${getLayoutClass(0, posts.length)}`}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50px" }}
+                  className="break-inside-avoid bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-shadow duration-300 group cursor-pointer border border-[#E5DFD3]"
                 >
-                  <img 
-                    src={toImageSrc(featuredPost.image_url)} 
-                    alt={featuredPost.title} 
-                    onError={withImageFallback}
-                    loading="eager" 
-                  />
-                  <div className="card-overlay" />
-                  
-                  <div className="absolute top-6 left-6">
-                    <span className="region-tag">{featuredPost.category || 'Safari'}</span>
-                  </div>
-                  
-                  <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white">
-                    <h2 className="text-3xl md:text-5xl font-['Playfair_Display',serif] font-bold mb-4 leading-tight max-w-4xl">
-                      {featuredPost.title}
-                    </h2>
-                    <p className="text-white/80 text-lg mb-6 max-w-2xl leading-relaxed line-clamp-3">
-                      {featuredPost.excerpt}
-                    </p>
-                    <div className="flex items-center gap-6 font-medium text-sm">
-                      <span className="opacity-80">{featuredPost.read_time || '5 min read'}</span>
-                      <span className="text-[#D4A84B] hover:text-white transition-colors flex items-center gap-2">
-                        Read the Full Story <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </div>
-                </motion.article>
-              )}
-
-              {/* Asymmetric Grid */}
-              {remainingPosts.map((post, idx) => {
-                const actualIndex = idx + 1;
-                const layoutClass = getLayoutClass(actualIndex, posts.length);
-                const isHorizontal = layoutClass.includes("card-last");
-
-                if (isHorizontal) {
-                  return (
-                    <motion.article 
-                      key={post.id}
-                      variants={fadeUpItem}
-                      className={`blog-card ${layoutClass}`}
-                    >
-                      <div className="w-full md:w-2/5 h-64 md:h-full relative overflow-hidden">
-                        <img 
-                          src={toImageSrc(post.image_url)} 
-                          alt={post.title} 
-                          onError={withImageFallback}
-                          loading="lazy" 
-                          className="absolute inset-0 w-full h-full object-cover" 
-                        />
-                      </div>
-                      <div className="w-full md:w-3/5 p-8 md:p-12 flex flex-col justify-center bg-white z-10">
-                        <div className="mb-4">
-                          <span className="region-tag !bg-[#F7F3EE] !text-[#6B5744]">{post.category || 'Travel'}</span>
-                        </div>
-                        <h3 className="text-3xl md:text-4xl font-['Playfair_Display',serif] font-bold text-[#1A1208] mb-4 leading-tight">
-                          {post.title}
-                        </h3>
-                        <p className="text-[#6B5744] text-lg mb-8 leading-relaxed max-w-xl line-clamp-3">
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center gap-6 text-sm font-semibold mt-auto">
-                          <span className="text-[#6B5744] uppercase tracking-wide">{post.read_time || '4 min read'}</span>
-                          <span className="text-[#C1440E] flex items-center gap-2 hover:gap-3 transition-all cursor-pointer">
-                            Read the Full Story <ArrowRight className="w-4 h-4" />
-                          </span>
-                        </div>
-                      </div>
-                    </motion.article>
-                  );
-                }
-
-                // Standard Grid Cards (Tall, Wide, Normal)
-                return (
-                  <motion.article 
-                    key={post.id}
-                    variants={fadeUpItem}
-                    className={`blog-card ${layoutClass}`}
-                  >
+                  <div className="w-full relative overflow-hidden aspect-[4/3]">
                     <img 
                       src={toImageSrc(post.image_url)} 
                       alt={post.title} 
                       onError={withImageFallback}
                       loading="lazy" 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                     />
-                    <div className="card-overlay" />
-                    
-                    <div className="absolute top-5 left-5">
-                      <span className="region-tag">{post.category || 'Guide'}</span>
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-[#D4A84B] text-[#1A1208] font-['Space_Mono',monospace] text-[10px] tracking-widest px-3 py-1.5 rounded uppercase font-semibold shadow-md">
+                        {post.category || 'Travel'}
+                      </span>
                     </div>
+                  </div>
+                  
+                  <div className="p-8">
+                    <h3 className="text-2xl font-['Playfair_Display',serif] font-bold text-[#1A1208] mb-4 leading-snug group-hover:text-[#D4A84B] transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="text-[#6B5744] text-sm leading-relaxed mb-6 line-clamp-3">
+                      {post.excerpt}
+                    </p>
                     
-                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white z-10">
-                      <h3 className={`font-['Playfair_Display',serif] font-bold mb-3 leading-snug ${
-                        layoutClass === 'card-wide' || layoutClass === 'card-tall' ? 'text-2xl md:text-3xl max-w-xl' : 'text-xl md:text-2xl'
-                      }`}>
-                        {post.title}
-                      </h3>
-                      <p className="text-white/70 text-sm md:text-base mb-5 line-clamp-2 md:line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center gap-4 text-xs font-semibold">
-                        <span className="opacity-80 uppercase tracking-wide">{post.read_time || '6 min read'}</span>
-                        <span className="text-[#D4A84B] flex items-center gap-1 group-hover:gap-2 transition-all">
-                          Read Story <ArrowRight className="w-3 h-3" />
+                    <div className="flex items-center justify-between text-xs font-semibold border-t border-[#E5DFD3] pt-4 mt-auto">
+                      <div className="flex items-center gap-4 text-[#6B5744]">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" /> {formatDate(post.created_at)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" /> {post.read_time || '5 min read'}
                         </span>
                       </div>
                     </div>
-                  </motion.article>
-                );
-              })}
-            </motion.div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
           )}
         </div>
       </section>
