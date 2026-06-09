@@ -227,11 +227,17 @@ async function seed() {
     const exists = await pool.query('SELECT id FROM destinations WHERE name = $1', [d.name]);
     if (exists.rows.length === 0) {
       await pool.query(
-        `INSERT INTO destinations (name, country, tags, image_url, description, best_months, published)
-         VALUES ($1, $2, $3, $4, $5, $6, true)`,
-        [d.name, d.country, d.tags, d.image_url, d.description, d.best_months]
+        `INSERT INTO destinations (name, country, category, tags, image_url, description, best_months, published)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, true)`,
+        [d.name, d.country, d.country, d.tags, d.image_url, d.description, d.best_months]
       );
       destInserted++;
+    } else {
+      // Update existing destinations to ensure category matches country
+      await pool.query(
+        `UPDATE destinations SET category = COALESCE(category, country), country = COALESCE(country, category) WHERE name = $1`,
+        [d.name]
+      );
     }
   }
   console.log(`   ✅ ${destInserted} new destinations inserted (${destinations.length - destInserted} already existed)\n`);
