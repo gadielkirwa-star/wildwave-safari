@@ -1,4 +1,4 @@
-const PROD_API_FALLBACK = "https://wildwave-safaris-api.onrender.com/api";
+const PROD_API_FALLBACK = "https://wildwave-safari-api.onrender.com/api";
 
 function isLocalHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1";
