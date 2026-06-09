@@ -2,8 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, ArrowRight, ChevronDown, Check, X, MapPin, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSEO } from "@/hooks/use-seo";
+import { fetchPackages } from "@/lib/cmsApi";
+import type { ApiPackage } from "@/lib/cmsApi";
 
 type ItineraryDay = {
   day: string;
@@ -219,9 +221,60 @@ const Packages = () => {
     path: "/packages",
   });
 
+  const [displayPackages, setDisplayPackages] = useState<DetailedPackage[]>(PACKAGES);
   const [openAccordionIds, setOpenAccordionIds] = useState<Record<string, number>>({
     coastal: 0, mara: 0, nakuru: 0, funnel: 0
   });
+
+  useEffect(() => {
+    fetchPackages()
+      .then((data: ApiPackage[]) => {
+        if (!data || data.length === 0) return; // keep hardcoded fallback
+        const mapped: DetailedPackage[] = data.map((pkg) => {
+          // Parse itinerary JSON if available, else try text
+          let itinerary: ItineraryDay[] = [];
+          if (pkg.itinerary_json && Array.isArray(pkg.itinerary_json)) {
+            itinerary = pkg.itinerary_json.map((d) => ({
+              day: `Day ${d.day}`,
+              title: d.title,
+              activities: d.description ? [d.description] : [],
+            }));
+          } else if (pkg.itinerary) {
+            // Fallback: split text itinerary by newline
+            itinerary = pkg.itinerary.split(/\n+/).filter(Boolean).map((line, i) => ({
+              day: `Day ${i + 1}`,
+              title: line,
+              activities: [],
+            }));
+          }
+
+          const inclusions = pkg.inclusions || (pkg.includes ? pkg.includes.split(/[,\n]+/).map(s => s.trim()).filter(Boolean) : []);
+          const exclusions = pkg.excludes ? pkg.excludes.split(/[,\n]+/).map(s => s.trim()).filter(Boolean) : [];
+          const highlights = pkg.highlights || [];
+
+          return {
+            id: String(pkg.id),
+            name: pkg.name,
+            duration: pkg.duration || "Custom",
+            focus: pkg.type || pkg.tag || "Tailored Safari Experience",
+            overview: pkg.description || undefined,
+            image: pkg.image_url || "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1600&q=80",
+            itinerary: itinerary.length > 0 ? itinerary : [{ day: "Day 1", title: "Your Adventure Begins", activities: ["Contact us for the full detailed itinerary"] }],
+            highlights: highlights.length > 0 ? highlights : undefined,
+            accommodations: {
+              budget: (pkg.accommodations?.[0]) || "Tented camps & guesthouses",
+              midRange: (pkg.accommodations?.[1]) || "Safari lodges",
+              luxury: (pkg.accommodations?.[2]) || "Private conservancies",
+            },
+            inclusions: inclusions.length > 0 ? inclusions : undefined,
+            exclusions: exclusions.length > 0 ? exclusions : undefined,
+            addOns: pkg.addons && pkg.addons.length > 0 ? pkg.addons : undefined,
+          };
+        });
+        setDisplayPackages(mapped);
+      })
+      .catch(() => {/* keep hardcoded fallback */});
+  }, []);
 
   const toggleAccordion = (pkgId: string, index: number) => {
     setOpenAccordionIds(prev => ({
@@ -249,7 +302,7 @@ const Packages = () => {
       {/* Packages List */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 space-y-24 md:space-y-32">
-          {PACKAGES.map((pkg, index) => (
+          {displayPackages.map((pkg, index) => (
             <motion.div 
               key={pkg.id}
               initial="hidden"

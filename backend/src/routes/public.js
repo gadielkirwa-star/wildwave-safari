@@ -200,6 +200,18 @@ router.get('/team-members', async (req, res) => {
   }
 });
 
+router.get('/partners', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM partners WHERE COALESCE(is_active, true) = true ORDER BY COALESCE(display_order, 0) ASC, created_at DESC, id DESC'
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Public partners error:', error);
+    res.status(500).json({ error: 'Failed to fetch partners' });
+  }
+});
+
 router.get('/video-proxy', async (req, res) => {
   try {
     const rawUrl = `${req.query.url || ''}`.trim();

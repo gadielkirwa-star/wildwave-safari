@@ -210,37 +210,47 @@ router.post('/delete-image', authenticate, async (req, res) => {
 // Dashboard statistics
 router.get('/dashboard', authenticate, async (req, res) => {
   try {
-    const bookingsCount = await pool.query('SELECT COUNT(*) FROM bookings');
-    const revenueSum = await pool.query('SELECT SUM(total_price) FROM bookings WHERE status = $1', ['confirmed']);
-    const customersCount = await pool.query('SELECT COUNT(DISTINCT email) FROM bookings');
-    const activeToursCount = await pool.query('SELECT COUNT(*) FROM bookings WHERE status = $1', ['confirmed']);
-
-    const recentBookings = await pool.query(
-      'SELECT * FROM bookings ORDER BY created_at DESC LIMIT 5'
-    );
-
-    const countryData = await pool.query(`
-      SELECT safari_type as country, COUNT(*) as bookings 
-      FROM bookings 
-      GROUP BY safari_type
-    `);
-
-    const revenueData = await pool.query(`
-      SELECT TO_CHAR(created_at, 'Mon') as month, SUM(total_price) as revenue
-      FROM bookings
-      WHERE created_at >= NOW() - INTERVAL '6 months'
-      GROUP BY TO_CHAR(created_at, 'Mon'), EXTRACT(MONTH FROM created_at)
-      ORDER BY EXTRACT(MONTH FROM created_at)
-    `);
+    const [
+      bookingsCount,
+      revenueSum,
+      customersCount,
+      activeToursCount,
+      destinationsCount,
+      packagesCount,
+      blogsCount,
+      partnersCount,
+      recentBookings,
+      recentBlogs,
+      countryData,
+      revenueData,
+    ] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM bookings'),
+      pool.query('SELECT SUM(total_price) FROM bookings WHERE status = $1', ['confirmed']),
+      pool.query('SELECT COUNT(DISTINCT email) FROM bookings'),
+      pool.query('SELECT COUNT(*) FROM bookings WHERE status = $1', ['confirmed']),
+      pool.query('SELECT COUNT(*) FROM destinations'),
+      pool.query('SELECT COUNT(*) FROM packages'),
+      pool.query('SELECT COUNT(*) FROM blogs WHERE COALESCE(published, true) = true'),
+      pool.query('SELECT COUNT(*) FROM partners WHERE COALESCE(is_active, true) = true').catch(() => ({ rows: [{ count: 0 }] })),
+      pool.query('SELECT * FROM bookings ORDER BY created_at DESC LIMIT 5'),
+      pool.query('SELECT id, title, category, image_url, published, created_at FROM blogs ORDER BY created_at DESC LIMIT 5'),
+      pool.query('SELECT safari_type as country, COUNT(*) as bookings FROM bookings GROUP BY safari_type'),
+      pool.query(`SELECT TO_CHAR(created_at, 'Mon') as month, SUM(total_price) as revenue FROM bookings WHERE created_at >= NOW() - INTERVAL '6 months' GROUP BY TO_CHAR(created_at, 'Mon'), EXTRACT(MONTH FROM created_at) ORDER BY EXTRACT(MONTH FROM created_at)`),
+    ]);
 
     res.json({
       totalBookings: parseInt(bookingsCount.rows[0].count),
       totalRevenue: parseFloat(revenueSum.rows[0].sum || 0),
       totalCustomers: parseInt(customersCount.rows[0].count),
       activeTours: parseInt(activeToursCount.rows[0].count),
+      totalDestinations: parseInt(destinationsCount.rows[0].count),
+      totalPackages: parseInt(packagesCount.rows[0].count),
+      totalBlogs: parseInt(blogsCount.rows[0].count),
+      totalPartners: parseInt(partnersCount.rows[0].count),
       bookingGrowth: 12.5,
       revenueGrowth: 18.3,
       recentBookings: recentBookings.rows,
+      recentBlogs: recentBlogs.rows,
       countryData: countryData.rows.map(row => ({
         country: row.country,
         bookings: parseInt(row.bookings),
@@ -775,6 +785,78 @@ router.get('/customers', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Customers error:', error);
     res.status(500).json({ error: 'Failed to fetch customers' });
+  }
+});
+
+// ─── Partners ───────────────────────────────────────────────────────────────
+router.get('/partners', authenticate, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM partners ORDER BY COALESCE(display_order, 0) ASC, created_at DESC, id DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Partners error:', error);
+    res.status(500).json({ error: 'Failed to fetch partners' });
+  }
+});
+
+router.post('/partners', authenticate, async (req, res) => {
+  try {
+    const { name, logo_url, is_active, display_order } = req.body;
+    if (!name || !logo_url) {
+      return res.status(400).json({ error: 'name and logo_url are required' });
+    }
+    const result = await pool.query(
+      'INSERT INTO partners (name, logo_url, is_active, display_order) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, logo_url, is_active !== false, Number.isFinite(Number(display_order)) ? Number(display_order) : 0]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Create partner error:', error);
+    res.status(500).json({ error: 'Failed to create partner' });
+  }
+});
+
+router.put('/partners/:id', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, logo_url, is_active, display_order } = req.body;
+    const result = await pool.query(
+      'UPDATE partners SET name = $1, logo_url = $2, is_active = $3, display_order = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING *',
+      [name, logo_url, is_active !== false, Number.isFinite(Number(display_order)) ? Number(display_order) : 0, id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'Partner not found' });
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update partner error:', error);
+    res.status(500).json({ error: 'Failed to update partner' });
+  }
+});
+
+router.patch('/partners/:id/toggle', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'UPDATE partners SET is_active = NOT is_active, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
+      [id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'Partner not found' });
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Toggle partner error:', error);
+    res.status(500).json({ error: 'Failed to toggle partner' });
+  }
+});
+
+router.delete('/partners/:id', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const existing = await pool.query('SELECT id FROM partners WHERE id = $1', [id]);
+    if (!existing.rows[0]) return res.status(404).json({ error: 'Partner not found' });
+    await pool.query('DELETE FROM partners WHERE id = $1', [id]);
+    res.json({ message: 'Partner deleted' });
+  } catch (error) {
+    console.error('Delete partner error:', error);
+    res.status(500).json({ error: 'Failed to delete partner' });
   }
 });
 

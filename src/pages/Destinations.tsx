@@ -3,20 +3,9 @@ import { motion } from "framer-motion";
 import { MapPin, Filter, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { API_BASE_URL } from "@/lib/api";
-import { toImageSrc, withImageFallback } from "@/lib/images";
+import { withImageFallback } from "@/lib/images";
 import { useSEO } from "@/hooks/use-seo";
-
-type DestinationResponse = {
-  id: number;
-  name: string;
-  country?: string | null;
-  category?: string | null;
-  tags?: string | null;
-  image_url?: string | null;
-  description?: string | null;
-  best_months?: string | null;
-};
+import { fetchDestinations } from "@/lib/cmsApi";
 
 type DestinationCard = {
   id: number;
@@ -41,176 +30,6 @@ const fadeUp = {
   }),
 };
 
-const HARDCODED_DESTINATIONS: DestinationCard[] = [
-  // KENYA
-  {
-    id: 1,
-    name: "Maasai Mara National Reserve",
-    country: "Kenya",
-    region: "Kenya",
-    category: ["Luxury", "Photo Safaris", "Family Safaris"],
-    image: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=80",
-    desc: "Iconic for the Great Wildebeest Migration and Big Five safaris across vast, open plains.",
-    bestMonths: "July–October"
-  },
-  {
-    id: 2,
-    name: "Amboseli National Park",
-    country: "Kenya",
-    region: "Kenya",
-    category: ["Photo Safaris", "Family Safaris"],
-    image: "https://i.pinimg.com/736x/83/92/b9/8392b9d2e1ea92477d406a0575ad9f07.jpg",
-    desc: "Famous for massive elephant herds wandering with the dramatic backdrop of Mount Kilimanjaro.",
-    bestMonths: "June–October"
-  },
-  {
-    id: 3,
-    name: "Tsavo National Parks",
-    country: "Kenya",
-    region: "Kenya",
-    category: ["Budget", "Family Safaris"],
-    image: "https://i.pinimg.com/736x/63/cb/b1/63cbb1797844c13a7a7328bc85e78319.jpg",
-    desc: "Kenya's largest park, known for its distinct red elephants, ancient lava flows, and diverse landscapes.",
-    bestMonths: "June–October"
-  },
-  {
-    id: 4,
-    name: "Samburu National Reserve",
-    country: "Kenya",
-    region: "Kenya",
-    category: ["Luxury", "Photo Safaris"],
-    image: "https://i.pinimg.com/736x/7e/79/de/7e79deb6810782c118dae6d768c81744.jpg",
-    desc: "An arid, rugged sanctuary home to rare species like Grevy's zebra and the reticulated giraffe.",
-    bestMonths: "June–September"
-  },
-  {
-    id: 5,
-    name: "Lake Nakuru National Park",
-    country: "Kenya",
-    region: "Kenya",
-    category: ["Photo Safaris", "Budget"],
-    image: "https://i.pinimg.com/736x/f7/4a/b1/f74ab14e065ee7d5e92abff620df7fd0.jpg",
-    desc: "A breathtaking flamingo paradise and highly successful rhinoceros sanctuary in the Great Rift Valley.",
-    bestMonths: "Year-round"
-  },
-  {
-    id: 6,
-    name: "Aberdare National Park",
-    country: "Kenya",
-    region: "Kenya",
-    category: ["Luxury", "Family Safaris"],
-    image: "https://i.pinimg.com/736x/be/39/6c/be396c7c01e9de5a9035311833c362b8.jpg",
-    desc: "Lush, mountainous forests featuring cascading waterfalls and unique tree-hotel lodges for wildlife viewing.",
-    bestMonths: "June–September"
-  },
-
-  // TANZANIA
-  {
-    id: 7,
-    name: "Serengeti National Park",
-    country: "Tanzania",
-    region: "Tanzania",
-    category: ["Luxury", "Photo Safaris"],
-    image: "https://i.pinimg.com/736x/09/82/4b/09824b60ea14e9e5d5309b065b994bad.jpg",
-    desc: "World-famous for the Great Migration and seemingly endless, wildlife-rich savannahs.",
-    bestMonths: "June–October"
-  },
-  {
-    id: 8,
-    name: "Ngorongoro Crater",
-    country: "Tanzania",
-    region: "Tanzania",
-    category: ["Luxury", "Family Safaris"],
-    image: "https://i.pinimg.com/736x/1a/11/b2/1a11b26d1e6bad68aa1e29b6fe58004e.jpg",
-    desc: "A UNESCO-listed volcanic caldera boasting the highest density of wildlife in all of Africa.",
-    bestMonths: "Year-round"
-  },
-  {
-    id: 9,
-    name: "Kilimanjaro National Park",
-    country: "Tanzania",
-    region: "Tanzania",
-    category: ["Budget", "Family Safaris"],
-    image: "https://i.pinimg.com/736x/16/47/e6/1647e614f383056cdc4a411706a4adc9.jpg",
-    desc: "Home to Africa's highest peak (5,895m), offering spectacular trekking and eco-tourism adventures.",
-    bestMonths: "June–October"
-  },
-  {
-    id: 10,
-    name: "Tarangire National Park",
-    country: "Tanzania",
-    region: "Tanzania",
-    category: ["Photo Safaris", "Budget"],
-    image: "https://i.pinimg.com/736x/f9/b1/70/f9b1709e702b254ce5861e034f24dd82.jpg",
-    desc: "Famed for its surreal landscape dotted with ancient baobab trees and massive elephant herds.",
-    bestMonths: "July–October"
-  },
-  {
-    id: 11,
-    name: "Selous Game Reserve",
-    country: "Tanzania",
-    region: "Tanzania",
-    category: ["Luxury", "Photo Safaris"],
-    image: "https://i.pinimg.com/736x/30/e6/f8/30e6f8b08b6a587287a34b88e0d19e90.jpg",
-    desc: "One of Africa's largest protected areas, offering untamed wilderness and incredible boat safaris.",
-    bestMonths: "June–October"
-  },
-  {
-    id: 12,
-    name: "Zanzibar Archipelago",
-    country: "Tanzania",
-    region: "Tanzania",
-    category: ["Luxury", "Family Safaris"],
-    image: "https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?w=800&q=80",
-    desc: "A tropical haven of pristine white beaches, aromatic spice tours, and the historic charm of Stone Town.",
-    bestMonths: "June–October"
-  },
-
-  // UGANDA
-  {
-    id: 13,
-    name: "Bwindi Impenetrable Forest",
-    country: "Uganda",
-    region: "Uganda",
-    category: ["Luxury", "Photo Safaris"],
-    image: "https://i.pinimg.com/736x/d9/fb/0a/d9fb0a03afdc6276c1a2e4af736fc9e9.jpg",
-    desc: "A mystical, dense rainforest offering the ultimate gorilla trekking experience (half the world's mountain gorillas).",
-    bestMonths: "June–August"
-  },
-  {
-    id: 14,
-    name: "Queen Elizabeth National Park",
-    country: "Uganda",
-    region: "Uganda",
-    category: ["Family Safaris", "Budget"],
-    image: "https://i.pinimg.com/736x/dc/1f/0d/dc1f0d156668bb85ac7c670d77e0b1fd.jpg",
-    desc: "Famed for chimpanzee tracking, rare tree-climbing lions, and wildlife boat cruises along the Kazinga Channel.",
-    bestMonths: "June–September"
-  },
-  {
-    id: 15,
-    name: "Murchison Falls National Park",
-    country: "Uganda",
-    region: "Uganda",
-    category: ["Photo Safaris", "Budget"],
-    image: "https://i.pinimg.com/736x/e5/bf/af/e5bfaf21dff54ba754e8fd495da0b6e4.jpg",
-    desc: "Home to the world's most powerful waterfalls and spectacular Nile River boat safaris.",
-    bestMonths: "December–February"
-  },
-
-  // RWANDA
-  {
-    id: 16,
-    name: "Volcanoes National Park",
-    country: "Rwanda",
-    region: "Rwanda",
-    category: ["Luxury", "Photo Safaris"],
-    image: "https://i.pinimg.com/736x/d6/3b/6f/d63b6f9b1d41085544c59588f6970fbc.jpg",
-    desc: "Famous for Dian Fossey's work, offering unparalleled mountain gorilla trekking and rare golden monkeys.",
-    bestMonths: "June–September"
-  }
-];
-
 const Destinations = () => {
   useSEO({
     title: "Safari Destinations in East Africa | WildWave Safaris",
@@ -222,8 +41,31 @@ const Destinations = () => {
 
   const [activeRegion, setActiveRegion] = useState("All");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [allDestinations, setAllDestinations] = useState<DestinationCard[]>(HARDCODED_DESTINATIONS);
-  const [loading, setLoading] = useState(false);
+  const [allDestinations, setAllDestinations] = useState<DestinationCard[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDestinations()
+      .then((data) => {
+        const mapped: DestinationCard[] = data.map((d) => ({
+          id: d.id,
+          name: d.name,
+          country: d.country || d.category || "East Africa",
+          region: d.country || d.category || "East Africa",
+          category: d.tags
+            ? d.tags.split(",").map((t) => t.trim()).filter(Boolean)
+            : [],
+          image: d.image_url || "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=80",
+          desc: d.description || "",
+          bestMonths: d.best_months || "Year-round",
+        }));
+        setAllDestinations(mapped);
+      })
+      .catch(() => {
+        // Silently fail — page stays empty with the "no destinations" message
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = allDestinations
     .filter((d) => {
@@ -236,7 +78,6 @@ const Destinations = () => {
       const bIdx = countryOrder.indexOf(b.country);
       const aRank = aIdx === -1 ? Number.MAX_SAFE_INTEGER : aIdx;
       const bRank = bIdx === -1 ? Number.MAX_SAFE_INTEGER : bIdx;
-
       if (aRank !== bRank) return aRank - bRank;
       return a.name.localeCompare(b.name);
     });

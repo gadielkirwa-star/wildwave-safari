@@ -1,16 +1,19 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail, Instagram, Facebook, Music2 } from "lucide-react";
+import { fetchPartners } from "@/lib/cmsApi";
 
-const partners = [
-  { name: "TripAdvisor", logo: "https://static.tacdn.com/img2/brand_refresh_2025/logos/wordmark.svg" },
-  { name: "Safari Bookings", logo: "https://cfstatic.safaribookings.com/img/logos/logo-240x35.png" },
-  { name: "TOSK", logo: "https://staging.toskenya.org/wp-content/uploads/2024/03/tosk_logo_v2.webp" },
-  { name: "Serena Hotels", logo: "https://image-tc.galaxy.tf/wisvg-2kxzoagrzpaii22pmbq9rz11m/serena-hotel-logo.svg?width=128&height=80" },
-  { name: "Sopa Lodges", logo: "https://www.sopalodges.com/images/logos/sopalodges-logo.png" },
-  { name: "Mombasa Air Safari", logo: "https://storage.aerocrs.com/99/system/logo.png" },
-];
+type Partner = { id: number; name: string; logo_url: string };
 
 const Footer = () => {
+  const [partners, setPartners] = useState<Partner[]>([]);
+
+  useEffect(() => {
+    fetchPartners()
+      .then(setPartners)
+      .catch(() => {/* silently ignore — footer still renders */});
+  }, []);
+
   const quickLinks = [
     { label: "Destinations", path: "/destinations" },
     { label: "Safari Packages", path: "/packages" },
@@ -31,18 +34,31 @@ const Footer = () => {
       <div className="border-b border-safari-warm-brown/30 bg-[#1A1208] py-16">
         <div className="container mx-auto px-4">
           <h3 className="text-center text-safari-gold/80 font-display font-medium text-sm tracking-[0.2em] uppercase mb-12">Trusted By Leading Partners</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto">
-            {partners.map((partner, index) => (
-              <div key={index} className="bg-white/5 border border-white/10 rounded-xl p-6 flex items-center justify-center h-[90px] md:h-[100px] hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                <img 
-                  src={partner.logo} 
-                  alt={partner.name} 
-                  title={partner.name}
-                  className="max-w-full max-h-full object-contain filter grayscale brightness-0 invert opacity-70 group-hover:opacity-100 transition-all duration-300"
-                />
-              </div>
-            ))}
-          </div>
+          {partners.length > 0 ? (
+            <div className={`grid gap-6 max-w-6xl mx-auto ${
+              partners.length <= 3 ? 'grid-cols-2 md:grid-cols-3' :
+              partners.length <= 4 ? 'grid-cols-2 md:grid-cols-4' :
+              'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'
+            }`}>
+              {partners.map((partner) => (
+                <div key={partner.id} className="bg-white/5 border border-white/10 rounded-xl p-6 flex items-center justify-center h-[90px] md:h-[100px] hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                  <img
+                    src={partner.logo_url}
+                    alt={partner.name}
+                    title={partner.name}
+                    className="max-w-full max-h-full object-contain filter grayscale brightness-0 invert opacity-70 group-hover:opacity-100 transition-all duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Static fallback grid when no partners in DB yet */
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto opacity-30">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white/5 border border-white/10 rounded-xl h-[90px]" />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

@@ -192,6 +192,34 @@ ALTER TABLE team_members ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE team_members ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
 ALTER TABLE team_members ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
 
+-- Schema Updates
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS gallery_images JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS highlights JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false;
+
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS inclusions JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS accommodations JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS highlights JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS addons JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS itinerary_json JSONB DEFAULT '[]'::jsonb;
+
+ALTER TABLE blogs ADD COLUMN IF NOT EXISTS author VARCHAR(255) DEFAULT 'WildWave Safaris';
+ALTER TABLE blogs ADD COLUMN IF NOT EXISTS slug VARCHAR(255) UNIQUE;
+ALTER TABLE blogs ADD COLUMN IF NOT EXISTS meta_title VARCHAR(255);
+ALTER TABLE blogs ADD COLUMN IF NOT EXISTS meta_description TEXT;
+ALTER TABLE blogs ADD COLUMN IF NOT EXISTS tags JSONB DEFAULT '[]'::jsonb;
+
+-- Partners table
+CREATE TABLE IF NOT EXISTS partners (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  logo_url TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Seed sample team members (idempotent)
 INSERT INTO team_members (name, role, bio, image_url, active, display_order)
 SELECT *
