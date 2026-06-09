@@ -3,9 +3,9 @@ import { useSEO } from "@/hooks/use-seo";
 import { Calendar, Clock, Facebook, Twitter, Link as LinkIcon } from "lucide-react";
 
 const DIANI_IMAGES = [
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=85",
-  "https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?w=800&q=85",
-  "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=800&q=85"
+  "https://i.pinimg.com/736x/1c/0c/6d/1c0c6d937843c47da0cc438056c679c8.jpg",
+  "https://i.pinimg.com/736x/8e/87/f3/8e87f361b6a14578a5d04f833217b2df.jpg",
+  "https://i.pinimg.com/736x/b5/28/f1/b528f1cc086713ad3830180bf82487aa.jpg"
 ];
 
 const staggerContainer = {
