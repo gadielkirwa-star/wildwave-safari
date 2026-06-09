@@ -1,26 +1,44 @@
 import { motion } from "framer-motion";
 import { useSEO } from "@/hooks/use-seo";
-import { MessageCircle, Phone } from "lucide-react";
+import { Calendar, Clock, MessageCircle, Phone } from "lucide-react";
 
-// Mock data using the approved card layout for the main blog list
+// Expanded Mock Data to show how long content behaves
 const BLOGS = [
   {
     id: 1,
-    title: "Safari & Sea Escape",
+    title: "The Ultimate Guide to Witnessing the Great Migration in the Serengeti",
+    category: "Wildlife",
+    date: "July 12, 2026",
+    readTime: "8 Min Read",
     image: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=80",
-    desc: "Experience the magic of 4 days in the Masai Mara followed by 4 days relaxing on the pristine white sands of Diani Beach."
+    excerpt: "Every year, over two million wildebeest, zebras, and gazelles embark on a perilous journey across the plains of East Africa. Witnessing this incredible spectacle is a life-changing experience, but timing is everything. Our expert guides break down exactly where and when you need to be to witness the dramatic river crossings, how to avoid the biggest crowds, and what luxury lodges offer the absolute best vantage points for this natural wonder. From the southern calving plains in February to the crocodile-infested Mara River in August, this is your definitive guide to the Great Migration."
   },
   {
     id: 2,
-    title: "Coastal Marine Adventure",
+    title: "Diving the Depths: Kisite-Mpunguti Marine Park",
+    category: "Coastal",
+    date: "June 28, 2026",
+    readTime: "5 Min Read",
     image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80",
-    desc: "Dive into the Indian Ocean and snorkel with wild dolphins in the crystal clear waters of Kisite-Mpunguti Marine Park."
+    excerpt: "Dive into the Indian Ocean and snorkel with wild dolphins in the crystal clear waters of Kisite-Mpunguti Marine Park. Located just off the southern coast of Kenya, this pristine marine reserve offers some of the best snorkeling and diving in Africa, teeming with colorful coral gardens and rare marine life."
   },
   {
     id: 3,
-    title: "Romantic Diani Honeymoon",
+    title: "Romantic Diani: The Perfect Honeymoon Escape",
+    category: "Luxury",
+    date: "May 15, 2026",
+    readTime: "4 Min Read",
     image: "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?w=800&q=80",
-    desc: "Unwind in luxury beachfront villas and enjoy private dhow sunset cruises along Kenya's most beautiful coastline."
+    excerpt: "Unwind in luxury beachfront villas and enjoy private dhow sunset cruises along Kenya's most beautiful coastline. Let the warm tropical breeze and the sound of the ocean wash away the stress of your wedding planning."
+  },
+  {
+    id: 4,
+    title: "Gorilla Trekking in Bwindi Impenetrable Forest",
+    category: "Adventure",
+    date: "April 02, 2026",
+    readTime: "6 Min Read",
+    image: "https://images.unsplash.com/photo-1564415051832-68045e7e0d3b?w=800&q=80",
+    excerpt: "Deep in the misty mountains of Uganda lies one of the most incredible wildlife encounters on earth. Coming face-to-face with a silverback mountain gorilla is a humbling, emotional experience that you will never forget. Learn exactly what to pack, how to prepare physically, and what to expect during your trek."
   }
 ];
 
@@ -53,26 +71,58 @@ const Blog = () => {
         </motion.div>
       </section>
 
-      {/* APPROVED BLOG GRID LAYOUT (From Related Safaris) */}
+      {/* MAGAZINE STYLE BLOG LISTING */}
       <section className="px-4 pb-24">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           <motion.div 
             initial="hidden" animate="visible" variants={fadeUp}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12"
           >
             {BLOGS.map((blog) => (
-              <div key={blog.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-[#E5DFD3] hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
-                <div className="aspect-[4/3] relative overflow-hidden shrink-0">
-                  <img src={blog.image} alt={blog.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <article 
+                key={blog.id} 
+                className="group relative bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-[#E5DFD3] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block w-full"
+              >
+                {/* 
+                  Using floats to allow text to wrap under the image gracefully.
+                  On mobile (default), it acts as a normal block element.
+                  On tablet (md:), it floats left.
+                */}
+                <div className="md:float-left md:w-[40%] xl:w-[45%] md:mr-6 mb-4 md:mb-2 overflow-hidden rounded-xl shrink-0">
+                  <div className="aspect-[4/3] md:aspect-[3/4] lg:aspect-square xl:aspect-[4/3] relative">
+                    <img 
+                      src={blog.image} 
+                      alt={blog.title} 
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
+                  </div>
                 </div>
-                <div className="p-8 flex flex-col flex-grow">
-                  <h4 className="text-2xl font-['Playfair_Display',serif] font-bold text-[#1A1208] mb-4 group-hover:text-[#D4A84B] transition-colors leading-tight">{blog.title}</h4>
-                  <p className="text-[#6B5744] mb-8 line-clamp-3 leading-relaxed flex-grow">{blog.desc}</p>
-                  <button className="w-full py-4 border border-[#1A1208] text-[#1A1208] font-bold rounded hover:bg-[#1A1208] hover:text-white transition-colors text-sm uppercase tracking-widest font-['Space_Mono',monospace] mt-auto">
-                    Read Story
+
+                {/* Content Section */}
+                <div className="pt-1 md:pt-0">
+                  <div className="flex flex-wrap items-center gap-3 font-['Space_Mono',monospace] text-[10px] tracking-widest text-[#6B5744] mb-4 uppercase font-semibold">
+                    <span className="text-[#C1440E] bg-[#C1440E]/10 px-2 py-1 rounded">{blog.category}</span>
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {blog.date}</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {blog.readTime}</span>
+                  </div>
+                  
+                  <h4 className="text-2xl lg:text-3xl font-['Playfair_Display',serif] font-bold text-[#1A1208] mb-4 group-hover:text-[#D4A84B] transition-colors leading-snug">
+                    {blog.title}
+                  </h4>
+                  
+                  <p className="text-[#6B5744] mb-6 leading-relaxed text-sm md:text-base">
+                    {blog.excerpt}
+                  </p>
+
+                  <button className="inline-block border-b-2 border-[#D4A84B] pb-1 text-[#1A1208] font-bold hover:text-[#D4A84B] transition-colors text-xs uppercase tracking-widest font-['Space_Mono',monospace]">
+                    Read Full Story
                   </button>
                 </div>
-              </div>
+
+                {/* Clear the float so the card wraps the entire content properly */}
+                <div className="clear-both"></div>
+              </article>
             ))}
           </motion.div>
         </div>
