@@ -32,6 +32,9 @@ const defaultProductionOrigins = [
   'https://wildwave-admin.vercel.app',
   'https://wildwave-safaris.onrender.com',
   'https://wildwave-safaris-admin.onrender.com',
+  'http://localhost:8080',
+  'http://localhost:5173',
+  'http://localhost:3000',
 ];
 
 const envOrigins = (process.env.CORS_ORIGIN || '')
