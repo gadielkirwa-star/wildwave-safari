@@ -2,18 +2,12 @@ import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail, Instagram, Facebook, Music2 } from "lucide-react";
 
 const partners = [
-  { name: "KWS", logo: "https://www.kws.go.ke/sites/default/files/logo_2.png" },
-  { name: "TRA", logo: "https://tra.go.ke/wp-content/uploads/2024/09/Logo-TRA.png" },
+  { name: "TripAdvisor", logo: "https://static.tacdn.com/img2/brand_refresh_2025/logos/wordmark.svg" },
   { name: "Safari Bookings", logo: "https://cfstatic.safaribookings.com/img/logos/logo-240x35.png" },
   { name: "TOSK", logo: "https://staging.toskenya.org/wp-content/uploads/2024/03/tosk_logo_v2.webp" },
-  { name: "Magical Kenya", logo: "https://i.pinimg.com/736x/58/91/7f/58917f27ff0f4b5315f9388877d62bd0.jpg" },
-  { name: "Sopa Lodges", logo: "https://www.sopalodges.com/images/logos/sopalodges-logo.png" },
   { name: "Serena Hotels", logo: "https://image-tc.galaxy.tf/wisvg-2kxzoagrzpaii22pmbq9rz11m/serena-hotel-logo.svg?width=128&height=80" },
-  { name: "TripAdvisor", logo: "https://static.tacdn.com/img2/brand_refresh_2025/logos/wordmark.svg" },
-  { name: "Safari Link", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYkVixZOmNLseNULkT9hPhNWBRLe4XFwIG1Q&s" },
-  { name: "Mombasa Air", logo: "https://storage.aerocrs.com/99/system/logo.png" },
-  { name: "Jambojet", logo: "https://www.flightscanner.co.ke/wp-content/uploads/2016/12/Jambojet-logo-wide.png" },
-  { name: "SGR", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUfUOg0O776XzR-tL21xaFeLSh4JN6acs5ng&s" },
+  { name: "Sopa Lodges", logo: "https://www.sopalodges.com/images/logos/sopalodges-logo.png" },
+  { name: "Mombasa Air Safari", logo: "https://storage.aerocrs.com/99/system/logo.png" },
 ];
 
 const Footer = () => {
@@ -34,22 +28,18 @@ const Footer = () => {
   return (
     <footer className="bg-safari-charcoal text-safari-sand">
       {/* Partners Section */}
-      <div className="border-b border-safari-warm-brown/30 bg-safari-charcoal py-12 overflow-hidden">
-        <div className="container mx-auto px-4 mb-8">
-          <h3 className="text-center text-safari-gold/80 font-display font-medium text-sm tracking-[0.2em] uppercase">Trusted By Leading Partners</h3>
-        </div>
-        <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] py-2">
-          <div className="flex w-max animate-scroll hover:[animation-play-state:paused]" style={{ animationDuration: '40s' }}>
-            {[...partners, ...partners].map((partner, index) => (
-              <div key={index} className="flex-shrink-0 w-[200px] md:w-[260px] px-4 flex items-center justify-center">
-                <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-center w-full h-[90px] md:h-[110px] hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                  <img 
-                    src={partner.logo} 
-                    alt={partner.name} 
-                    title={partner.name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
+      <div className="border-b border-safari-warm-brown/30 bg-[#1A1208] py-16">
+        <div className="container mx-auto px-4">
+          <h3 className="text-center text-safari-gold/80 font-display font-medium text-sm tracking-[0.2em] uppercase mb-12">Trusted By Leading Partners</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto">
+            {partners.map((partner, index) => (
+              <div key={index} className="bg-white/5 border border-white/10 rounded-xl p-6 flex items-center justify-center h-[90px] md:h-[100px] hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                <img 
+                  src={partner.logo} 
+                  alt={partner.name} 
+                  title={partner.name}
+                  className="max-w-full max-h-full object-contain filter grayscale brightness-0 invert opacity-70 group-hover:opacity-100 transition-all duration-300"
+                />
               </div>
             ))}
           </div>

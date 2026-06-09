@@ -19,6 +19,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -45,7 +46,7 @@ const Navbar = () => {
             alt="WildWave Logo"
             className="w-10 h-10 md:w-12 md:h-12 object-cover object-left rounded-full shadow-md border-2 border-white/80 transition-transform duration-300 hover:scale-110 hover:shadow-lg bg-white"
           />
-          <span className={`text-2xl md:text-3xl font-display font-bold tracking-tight transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>
+          <span className={`text-2xl md:text-3xl font-display font-bold tracking-tight transition-colors ${scrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"}`}>
             Wild<span className="text-primary">Wave</span> Safaris
           </span>
         </Link>
@@ -59,7 +60,7 @@ const Navbar = () => {
               className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
                 location.pathname === link.path
                   ? "text-primary"
-                  : scrolled
+                  : scrolled || !isHomePage
                   ? "text-foreground"
                   : "text-primary-foreground"
               }`}
@@ -78,7 +79,7 @@ const Navbar = () => {
         {/* Mobile Toggle */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`lg:hidden p-2 transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}
+          className={`lg:hidden p-2 transition-colors ${scrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"}`}
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>

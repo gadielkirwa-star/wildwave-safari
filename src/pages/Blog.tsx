@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSEO } from "@/hooks/use-seo";
 import { Calendar, Clock, MessageCircle, Phone } from "lucide-react";
@@ -6,39 +7,90 @@ import { Calendar, Clock, MessageCircle, Phone } from "lucide-react";
 const BLOGS = [
   {
     id: 1,
-    title: "The Ultimate Guide to Witnessing the Great Migration in the Serengeti",
+    theme: "The Ultimate Guide to",
+    title: "The Great Wildebeest Migration: Nature's Greatest Wildlife Spectacle",
     category: "Wildlife",
     date: "July 12, 2026",
     readTime: "8 Min Read",
-    image: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800&q=80",
-    excerpt: "Every year, over two million wildebeest, zebras, and gazelles embark on a perilous journey across the plains of East Africa. Witnessing this incredible spectacle is a life-changing experience, but timing is everything. Our expert guides break down exactly where and when you need to be to witness the dramatic river crossings, how to avoid the biggest crowds, and what luxury lodges offer the absolute best vantage points for this natural wonder. From the southern calving plains in February to the crocodile-infested Mara River in August, this is your definitive guide to the Great Migration."
+    image: "https://i.pinimg.com/736x/dd/c5/a4/ddc5a4a182a6a00a24374c0186b6b58a.jpg",
+    excerpt: `Every year, East Africa hosts one of the most breathtaking wildlife events on the planet—the Great Wildebeest Migration. More than 1.5 million wildebeest, accompanied by hundreds of thousands of zebras and gazelles, embark on an epic journey across the vast plains of Tanzania and Kenya in search of fresh grazing land and water.
+
+The migration begins in the southern Serengeti, where thousands of calves are born during the calving season. As the dry season approaches, the herds move north through the Serengeti and into Kenya's Masai Mara, covering hundreds of kilometers along the way.
+
+One of the most dramatic moments occurs at the Mara River crossings. Here, the animals must brave strong currents and lurking crocodiles as they fight to reach greener pastures. These crossings provide some of the most thrilling wildlife encounters in Africa and attract photographers and safari enthusiasts from around the world.
+
+Beyond the river crossings, the migration supports an entire ecosystem. Lions, cheetahs, leopards, hyenas, and other predators follow the herds, creating a remarkable display of nature's balance and survival.
+
+The best time to witness the migration in the Masai Mara is typically from July to October, while different stages of the migration can be viewed throughout the year in the Serengeti.
+
+The Great Wildebeest Migration is more than a safari experience—it's a powerful reminder of the raw beauty, resilience, and wonder of the natural world. For many travelers, witnessing this incredible journey is the highlight of a lifetime adventure in East Africa.`
+
   },
   {
     id: 2,
-    title: "Diving the Depths: Kisite-Mpunguti Marine Park",
+    theme: "Coastal Paradise",
+    title: "Diani Beach: The Crown Jewel of Kenya's Coast",
     category: "Coastal",
-    date: "June 28, 2026",
-    readTime: "5 Min Read",
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80",
-    excerpt: "Dive into the Indian Ocean and snorkel with wild dolphins in the crystal clear waters of Kisite-Mpunguti Marine Park. Located just off the southern coast of Kenya, this pristine marine reserve offers some of the best snorkeling and diving in Africa, teeming with colorful coral gardens and rare marine life."
+    date: "August 05, 2026",
+    readTime: "6 Min Read",
+    image: "https://i.pinimg.com/736x/1c/0c/6d/1c0c6d937843c47da0cc438056c679c8.jpg",
+    excerpt: `Diani Beach is frequently voted as one of Africa's leading beach destinations, and for good reason. With its flawless stretch of white powdery sand set against the vivid turquoise waters of the Indian Ocean, Diani offers a spectacular tropical retreat.
+
+Beyond the pristine sands, Diani is a hub for adventure. Visitors can try world-class kitesurfing, dive into vibrant coral reefs, or take a traditional wooden dhow cruise at sunset. The surrounding lush forests are also home to the rare Colobus monkeys, adding a unique touch of wildlife to your coastal escape.
+
+Whether you are looking to unwind in a luxury beachfront resort after an exhilarating safari, or seeking marine adventures along the beautiful Kenyan coastline, Diani Beach is the ultimate finale to your East African journey.`
   },
   {
     id: 3,
-    title: "Romantic Diani: The Perfect Honeymoon Escape",
-    category: "Luxury",
-    date: "May 15, 2026",
-    readTime: "4 Min Read",
-    image: "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?w=800&q=80",
-    excerpt: "Unwind in luxury beachfront villas and enjoy private dhow sunset cruises along Kenya's most beautiful coastline. Let the warm tropical breeze and the sound of the ocean wash away the stress of your wedding planning."
+    theme: "Untamed Wilderness",
+    title: "Tsavo National Park: The Land of Red Elephants",
+    category: "Adventure",
+    date: "September 10, 2026",
+    readTime: "7 Min Read",
+    image: "https://i.pinimg.com/736x/63/cb/b1/63cbb1797844c13a7a7328bc85e78319.jpg",
+    excerpt: `As Kenya's largest national park, Tsavo offers a raw and untamed safari experience that feels worlds away from the crowded tourist trails. Divided into Tsavo East and Tsavo West, this vast wilderness is characterized by its stark, rugged landscapes, baobab trees, and ancient lava flows.
+
+Tsavo is perhaps most famous for its 'red elephants'—massive herds that dust themselves in the region's rich, iron-oxide soil, giving them a distinct and beautiful rust-colored appearance against the savanna. 
+
+Whether you are exploring the volcanic terrain of the Yatta Plateau, marveling at the crystal-clear waters of Mzima Springs, or tracking the legendary descendants of the Tsavo lions, this park delivers an authentic and rugged East African adventure.`
   },
   {
     id: 4,
-    title: "Gorilla Trekking in Bwindi Impenetrable Forest",
+    theme: "Into the Wild",
+    title: "Gorilla Trekking in Bwindi Forest",
     category: "Adventure",
     date: "April 02, 2026",
     readTime: "6 Min Read",
-    image: "https://images.unsplash.com/photo-1564415051832-68045e7e0d3b?w=800&q=80",
+    image: "https://i.pinimg.com/736x/d9/fb/0a/d9fb0a03afdc6276c1a2e4af736fc9e9.jpg",
     excerpt: "Deep in the misty mountains of Uganda lies one of the most incredible wildlife encounters on earth. Coming face-to-face with a silverback mountain gorilla is a humbling, emotional experience that you will never forget. Learn exactly what to pack, how to prepare physically, and what to expect during your trek."
+  },
+  {
+    id: 5,
+    theme: "The Roof of Africa",
+    title: "Conquering Mount Kilimanjaro",
+    category: "Expedition",
+    date: "October 18, 2026",
+    readTime: "9 Min Read",
+    image: "https://i.pinimg.com/736x/16/47/e6/1647e614f383056cdc4a411706a4adc9.jpg",
+    excerpt: `Rising majestically above the African plains, Mount Kilimanjaro is the highest peak on the continent and the tallest free-standing mountain in the world. Scaling its snow-capped summit is a bucket-list adventure for trekkers across the globe.
+
+Unlike many of the world's highest peaks, reaching the summit of Kilimanjaro does not require technical mountaineering skills, making it an accessible challenge for determined adventurers. The journey takes you through five distinct climate zones, from lush rainforests at the base to the arctic conditions at Uhuru Peak.
+
+Whether you choose the popular Machame route or the scenic Lemosho trek, standing at the Roof of Africa as the sun rises over the vast savanna below is an unforgettable, life-changing achievement.`
+  },
+  {
+    id: 6,
+    theme: "The Pink Lake",
+    title: "Lake Nakuru: A Haven for Flamingos and Rhinos",
+    category: "Wildlife",
+    date: "November 05, 2026",
+    readTime: "5 Min Read",
+    image: "https://i.pinimg.com/736x/f7/4a/b1/f74ab14e065ee7d5e92abff620df7fd0.jpg",
+    excerpt: `Nestled deep within the Great Rift Valley, Lake Nakuru National Park is a breathtaking spectacle of nature, most famous for the vast flocks of bright pink flamingos that line its shores. The vibrant colors reflecting off the alkaline waters create a photographer's dream.
+
+Beyond the iconic birds, Lake Nakuru is also one of Kenya's most successful rhinoceros sanctuaries. Here, visitors have an incredibly high chance of spotting both the endangered black rhino and the white rhino wandering freely through the acacia woodlands.
+
+With its dramatic landscapes ranging from sweeping grasslands to rocky escarpments, Lake Nakuru offers a compact but incredibly dense wildlife viewing experience that is unlike any other park in East Africa.`
   }
 ];
 
@@ -48,6 +100,8 @@ const fadeUp = {
 };
 
 const Blog = () => {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
   useSEO({
     title: "Stories from the Wild | WildWave Safaris",
     description: "Read our latest luxury travel guides and safari stories.",
@@ -72,56 +126,87 @@ const Blog = () => {
       </section>
 
       {/* MAGAZINE STYLE BLOG LISTING */}
-      <section className="px-4 pb-24">
-        <div className="container mx-auto max-w-7xl">
+      <section className="px-4 xl:px-8 pb-32">
+        <div className="container mx-auto max-w-[1600px]">
           <motion.div 
             initial="hidden" animate="visible" variants={fadeUp}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16"
           >
             {BLOGS.map((blog) => (
               <article 
                 key={blog.id} 
-                className="group relative bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-[#E5DFD3] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block w-full"
+                className="group flex flex-col bg-transparent rounded-none border-none hover:-translate-y-1 transition-transform duration-500 cursor-pointer w-full h-full"
               >
-                {/* 
-                  Using floats to allow text to wrap under the image gracefully.
-                  On mobile (default), it acts as a normal block element.
-                  On tablet (md:), it floats left.
-                */}
-                <div className="md:float-left md:w-[40%] xl:w-[45%] md:mr-6 mb-4 md:mb-2 overflow-hidden rounded-xl shrink-0">
-                  <div className="aspect-[4/3] md:aspect-[3/4] lg:aspect-square xl:aspect-[4/3] relative">
-                    <img 
-                      src={blog.image} 
-                      alt={blog.title} 
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    />
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="pt-1 md:pt-0">
-                  <div className="flex flex-wrap items-center gap-3 font-['Space_Mono',monospace] text-[10px] tracking-widest text-[#6B5744] mb-4 uppercase font-semibold">
-                    <span className="text-[#C1440E] bg-[#C1440E]/10 px-2 py-1 rounded">{blog.category}</span>
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {blog.date}</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {blog.readTime}</span>
-                  </div>
-                  
-                  <h4 className="text-2xl lg:text-3xl font-['Playfair_Display',serif] font-bold text-[#1A1208] mb-4 group-hover:text-[#D4A84B] transition-colors leading-snug">
+                {/* FULL WIDTH TITLE SECTION ON TOP */}
+                <div className="w-full mb-6 px-1">
+                  <span className="block text-[#C1440E] italic text-lg xl:text-xl font-normal mb-2 tracking-wide font-['Playfair_Display',serif]">
+                    {blog.theme}
+                  </span>
+                  <h4 className="text-3xl md:text-4xl xl:text-5xl font-['Playfair_Display',serif] font-bold text-[#1A1208] group-hover:text-[#D4A84B] transition-colors leading-[1.2]">
                     {blog.title}
                   </h4>
-                  
-                  <p className="text-[#6B5744] mb-6 leading-relaxed text-sm md:text-base">
-                    {blog.excerpt}
-                  </p>
-
-                  <button className="inline-block border-b-2 border-[#D4A84B] pb-1 text-[#1A1208] font-bold hover:text-[#D4A84B] transition-colors text-xs uppercase tracking-widest font-['Space_Mono',monospace]">
-                    Read Full Story
-                  </button>
                 </div>
 
-                {/* Clear the float so the card wraps the entire content properly */}
-                <div className="clear-both"></div>
+                {/* CONTENT BLOCK WITH FLOATED IMAGE */}
+                <div className="relative w-full text-left block after:content-[''] after:table after:clear-both">
+                  {/* FLOATED DOMINANT IMAGE SECTION */}
+                  <div className="float-left w-[100%] md:w-[50%] lg:w-[55%] xl:w-[60%] mr-6 md:mr-8 mb-6 mt-2 shrink-0">
+                    {/* Premium Frame: warm off-white matte with gold accent bottom */}
+                    <div className="bg-[#FDFBF7] p-3 md:p-4 rounded-2xl border border-[#E5DFD3] shadow-md group-hover:shadow-xl transition-all duration-500 border-b-4 border-b-[#D4A84B]">
+                      {/* Image with fixed aspect ratio — no collapse */}
+                      <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden">
+                        <img
+                          src={blog.image}
+                          alt={blog.title}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                        />
+                        {/* Cinematic bottom gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                        {/* Category pill floating above gradient */}
+                        <div className="absolute top-4 left-4 z-10">
+                          <span className="bg-white/90 backdrop-blur-sm text-[#8C6B4A] font-['Space_Mono',monospace] text-[10px] tracking-widest px-3 py-1.5 rounded-full uppercase font-bold shadow-sm border border-white/50">
+                            {blog.category}
+                          </span>
+                        </div>
+
+                        {/* Bottom reading-time strip */}
+                        <div className="absolute bottom-0 left-0 right-0 px-5 py-4 z-10 flex items-center justify-between">
+                          <span className="text-white/80 text-xs font-['Space_Mono',monospace] tracking-wider flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" /> {blog.readTime}
+                          </span>
+                          <span className="text-white/80 text-xs font-['Space_Mono',monospace] tracking-wider flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" /> {blog.date}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EXCERPT TEXT FLOWING AROUND IMAGE */}
+                  <div className="text-[#4A3D30] leading-relaxed text-base xl:text-lg font-light whitespace-pre-line text-justify md:text-left transition-all duration-500">
+                    <div className={`transition-all duration-500 ${expandedId === blog.id ? '' : 'line-clamp-[10] md:line-clamp-[12] xl:line-clamp-[14]'}`}>
+                      {blog.excerpt}
+                    </div>
+                  </div>
+
+                  {/* INLINE ACTION BUTTON */}
+                  <div className="mt-6 block clear-both">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setExpandedId(expandedId === blog.id ? null : blog.id);
+                      }}
+                      className="group/btn inline-flex items-center gap-2 text-[#1A1208] font-bold border-b-2 border-[#D4A84B] pb-1 hover:text-[#D4A84B] hover:border-[#1A1208] transition-all text-xs xl:text-sm uppercase tracking-widest font-['Space_Mono',monospace]"
+                    >
+                      {expandedId === blog.id ? 'Show Less' : 'Read Story'} 
+                      <span className="transition-transform group-hover/btn:translate-x-1">
+                        {expandedId === blog.id ? '↑' : '→'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
               </article>
             ))}
           </motion.div>
