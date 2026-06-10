@@ -439,7 +439,7 @@ const Index = () => {
                 custom={i}
                 className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all"
               >
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative aspect-[16/9] md:aspect-auto md:h-56 overflow-hidden">
                   <img
                     src={pkg.image}
                     alt={pkg.name}

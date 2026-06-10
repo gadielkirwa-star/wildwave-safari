@@ -334,9 +334,9 @@ const BlogDetails = () => {
                   <div className="p-6">
                     <h4 className="text-xl font-['Playfair_Display',serif] font-bold text-[#1A1208] mb-2 group-hover:text-[#D4A84B] transition-colors">{tour.title}</h4>
                     <p className="text-sm text-[#6B5744] mb-6 line-clamp-2">{tour.desc}</p>
-                    <button className="w-full py-3 border border-[#1A1208] text-[#1A1208] font-bold rounded hover:bg-[#1A1208] hover:text-white transition-colors text-sm uppercase tracking-wider font-['Space_Mono',monospace]">
+                    <Link to="/packages" className="block w-full py-3 border border-[#1A1208] text-[#1A1208] font-bold rounded hover:bg-[#1A1208] hover:text-white transition-colors text-sm uppercase tracking-wider font-['Space_Mono',monospace] text-center">
                       View Tour
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -358,15 +358,15 @@ const BlogDetails = () => {
           </h2>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="w-full sm:w-auto bg-[#D4A84B] text-[#1A1208] px-8 py-4 rounded font-bold hover:bg-white transition-colors text-sm uppercase tracking-widest font-['Space_Mono',monospace]">
+            <Link to="/booking" className="w-full sm:w-auto bg-[#D4A84B] text-[#1A1208] px-8 py-4 rounded font-bold hover:bg-white transition-colors text-sm uppercase tracking-widest font-['Space_Mono',monospace] text-center">
               Book Safari
-            </button>
-            <button className="w-full sm:w-auto bg-[#25D366] text-white px-8 py-4 rounded font-bold hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-widest font-['Space_Mono',monospace]">
+            </Link>
+            <a href="https://wa.me/254713241666" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-[#25D366] text-white px-8 py-4 rounded font-bold hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-widest font-['Space_Mono',monospace]">
               <MessageCircle className="w-4 h-4" /> WhatsApp
-            </button>
-            <button className="w-full sm:w-auto border border-white/30 text-white px-8 py-4 rounded font-bold hover:bg-white hover:text-[#1A1208] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-widest font-['Space_Mono',monospace]">
+            </a>
+            <Link to="/contact" className="w-full sm:w-auto border border-white/30 text-white px-8 py-4 rounded font-bold hover:bg-white hover:text-[#1A1208] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-widest font-['Space_Mono',monospace]">
               <Phone className="w-4 h-4" /> Contact
-            </button>
+            </Link>
           </div>
         </motion.div>
       </section>
