@@ -1,9 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Sparkles, ArrowRight, Clock, Zap } from 'lucide-react'
+import { X, Sparkles, ArrowRight, Zap } from 'lucide-react'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '@/lib/api'
 import { toImageSrc, withImageFallback } from '@/lib/images'
+
+/** Returns true for http/https absolute URLs */
+const isExternal = (url: string) => /^https?:\/\//i.test(url.trim())
+
+/** Resolves a raw button_link to a safe destination.
+ *  - External URL  → used as-is (opens in new tab)
+ *  - Internal path → used as-is with Link
+ *  - Blank/null    → falls back to /booking
+ */
+const resolveLink = (raw?: string | null): { href: string; external: boolean } => {
+  const href = raw?.trim() || '/booking'
+  return { href, external: isExternal(href) }
+}
 
 type Promotion = {
   id: number
@@ -332,29 +345,42 @@ export default function PromotionalPopup() {
                       transition={{ delay: 0.52, type: 'spring', stiffness: 200 }}
                       className="mt-3 md:mt-auto"
                     >
-                      <Link
-                        to={promotion.button_link || '/contact'}
-                        onClick={handleClose}
-                        className="group relative flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm overflow-hidden text-white"
-                        style={{
-                          background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 35%, #FFD93D 65%, #6BCB77 100%)',
-                          boxShadow: '0 6px 30px rgba(255,107,107,0.5), 0 2px 8px rgba(107,203,119,0.3)',
-                        }}
-                      >
-                        {/* Shimmer sweep */}
-                        <span
-                          className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12"
-                          style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)' }}
-                        />
-                        <span className="relative drop-shadow-md">{promotion.button_text || 'Book Now'}</span>
-                        <motion.span
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
-                          className="relative"
-                        >
-                          <ArrowRight className="w-4 h-4 drop-shadow-md" />
-                        </motion.span>
-                      </Link>
+                      {(() => {
+                          const { href, external } = resolveLink(promotion.button_link)
+                          const ctaClass = 'group relative flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm overflow-hidden text-white'
+                          const ctaStyle = {
+                            background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 35%, #FFD93D 65%, #6BCB77 100%)',
+                            boxShadow: '0 6px 30px rgba(255,107,107,0.5), 0 2px 8px rgba(107,203,119,0.3)',
+                          }
+                          const inner = (
+                            <>
+                              <span
+                                className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12"
+                                style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)' }}
+                              />
+                              <span className="relative drop-shadow-md">{promotion.button_text || 'Book Now'}</span>
+                              <motion.span
+                                animate={{ x: [0, 5, 0] }}
+                                transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+                                className="relative"
+                              >
+                                <ArrowRight className="w-4 h-4 drop-shadow-md" />
+                              </motion.span>
+                            </>
+                          )
+                          return external ? (
+                            <a href={href} target="_blank" rel="noopener noreferrer"
+                               onClick={handleClose}
+                               className={ctaClass} style={ctaStyle}>
+                              {inner}
+                            </a>
+                          ) : (
+                            <Link to={href} onClick={handleClose}
+                                  className={ctaClass} style={ctaStyle}>
+                              {inner}
+                            </Link>
+                          )
+                        })()}
 
                       <button
                         onClick={handleClose}
