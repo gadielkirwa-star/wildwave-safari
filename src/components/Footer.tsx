@@ -139,7 +139,9 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-safari-warm-brown text-center text-sm opacity-60">
           <p>© {new Date().getFullYear()} WildWave Safaris. All rights reserved. | KATO Licensed Tour Operator</p>
-          <p className="mt-2 text-xs">Proudly designed and developed by WebMakers.</p>
+          <p className="mt-2 text-xs font-bold tracking-widest text-safari-cream/80 uppercase">
+            Proudly designed & developed by <span className="text-[#D4A84B] font-extrabold hover:text-primary transition-colors duration-200 cursor-pointer">WebMakers</span>
+          </p>
         </div>
       </div>
     </footer>
