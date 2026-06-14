@@ -5,17 +5,32 @@ import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '@/lib/api'
 import { toImageSrc, withImageFallback } from '@/lib/images'
 
-/** Returns true for http/https absolute URLs */
-const isExternal = (url: string) => /^https?:\/\//i.test(url.trim())
-
-/** Resolves a raw button_link to a safe destination.
- *  - External URL  → used as-is (opens in new tab)
- *  - Internal path → used as-is with Link
- *  - Blank/null    → falls back to /booking
+/**
+ * Extracts a usable URL from a raw button_link value.
+ * Handles cases where admins type free text like:
+ *   "Message us on WhatsApp. https://wa.me/254713241666"
+ * Steps:
+ *  1. If the whole string IS a URL → use it directly
+ *  2. Otherwise → scan for any embedded https?:// URL and extract it
+ *  3. If nothing found → fall back to /booking
  */
 const resolveLink = (raw?: string | null): { href: string; external: boolean } => {
-  const href = raw?.trim() || '/booking'
-  return { href, external: isExternal(href) }
+  const text = raw?.trim() || ''
+
+  if (!text) return { href: '/booking', external: false }
+
+  // Already a clean URL?
+  if (/^https?:\/\//i.test(text)) return { href: text, external: true }
+
+  // Already a clean internal path?
+  if (/^\/[a-zA-Z]/.test(text)) return { href: text, external: false }
+
+  // Try to extract an embedded URL from free-text (e.g. "Call us. https://wa.me/...")
+  const urlMatch = text.match(/https?:\/\/[^\s]+/i)
+  if (urlMatch) return { href: urlMatch[0], external: true }
+
+  // No recognisable link found — fall back safely
+  return { href: '/booking', external: false }
 }
 
 type Promotion = {
