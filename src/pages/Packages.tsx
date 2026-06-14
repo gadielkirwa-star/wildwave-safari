@@ -312,7 +312,7 @@ const Packages = () => {
               className={`flex flex-col lg:flex-row gap-10 md:gap-16 items-start ${index % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}
             >
               {/* Image Side */}
-              <div className="w-full lg:w-5/12 sticky top-32">
+              <div className="w-full lg:w-5/12">
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/5] md:aspect-square lg:aspect-[4/5] group">
                   <img 
                     src={pkg.image} 
