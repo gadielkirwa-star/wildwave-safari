@@ -361,7 +361,7 @@ export default function PromotionalPopup() {
                       className="mt-3 md:mt-auto"
                     >
                       {(() => {
-                          const { href, external } = resolveLink(promotion.button_link)
+                          const { href, external } = { href: '/booking', external: false }
                           const ctaClass = 'group relative flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm overflow-hidden text-white'
                           const ctaStyle = {
                             background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 35%, #FFD93D 65%, #6BCB77 100%)',
