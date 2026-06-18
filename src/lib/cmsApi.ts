@@ -58,6 +58,7 @@ export interface ApiPackage {
   addons: string[] | null;
   includes: string | null;
   excludes: string | null;
+  country: string | null;
   published: boolean;
 }
 

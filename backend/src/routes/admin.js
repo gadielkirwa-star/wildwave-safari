@@ -519,7 +519,7 @@ router.get('/packages', authenticate, async (req, res) => {
 
 router.post('/packages', authenticate, async (req, res) => {
   try {
-    const { name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published, highlights, accommodations_budget, accommodations_midrange, accommodations_luxury, addons } = req.body;
+    const { name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published, highlights, accommodations_budget, accommodations_midrange, accommodations_luxury, addons, country } = req.body;
     const itineraryJson = JSON.stringify(parseItineraryText(itinerary));
     const highlightsJson = JSON.stringify(highlights ? highlights.split('|').map(s => s.trim()).filter(Boolean) : []);
     const inclusionsJson = JSON.stringify(includes ? includes.split('|').map(s => s.trim()).filter(Boolean) : []);
@@ -527,8 +527,8 @@ router.post('/packages', authenticate, async (req, res) => {
     const addonsJson = JSON.stringify(addons ? addons.split('|').map(s => s.trim()).filter(Boolean) : []);
     
     const result = await pool.query(
-      'INSERT INTO packages (name, duration, price, tag, type, image_url, description, itinerary, itinerary_json, includes, excludes, published, highlights, inclusions, accommodations, addons) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
-      [name, duration, price, tag, type, image_url, description, itinerary, itineraryJson, includes, excludes, published !== false, highlightsJson, inclusionsJson, accommodationsJson, addonsJson]
+      'INSERT INTO packages (name, duration, price, tag, type, image_url, description, itinerary, itinerary_json, includes, excludes, published, highlights, inclusions, accommodations, addons, country) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING *',
+      [name, duration, price, tag, type, image_url, description, itinerary, itineraryJson, includes, excludes, published !== false, highlightsJson, inclusionsJson, accommodationsJson, addonsJson, country || '']
     );
 
     // Keep public destinations in sync when package name matches destination name.
@@ -544,7 +544,7 @@ router.post('/packages', authenticate, async (req, res) => {
 router.put('/packages/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published, highlights, accommodations_budget, accommodations_midrange, accommodations_luxury, addons } = req.body;
+    const { name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published, highlights, accommodations_budget, accommodations_midrange, accommodations_luxury, addons, country } = req.body;
     const itineraryJson = JSON.stringify(parseItineraryText(itinerary));
     const highlightsJson = JSON.stringify(highlights ? highlights.split('|').map(s => s.trim()).filter(Boolean) : []);
     const inclusionsJson = JSON.stringify(includes ? includes.split('|').map(s => s.trim()).filter(Boolean) : []);
@@ -552,8 +552,8 @@ router.put('/packages/:id', authenticate, async (req, res) => {
     const addonsJson = JSON.stringify(addons ? addons.split('|').map(s => s.trim()).filter(Boolean) : []);
     
     const result = await pool.query(
-      'UPDATE packages SET name = $1, duration = $2, price = $3, tag = $4, type = $5, image_url = $6, description = $7, itinerary = $8, itinerary_json = $9, includes = $10, excludes = $11, published = $12, highlights = $13, inclusions = $14, accommodations = $15, addons = $16 WHERE id = $17 RETURNING *',
-      [name, duration, price, tag, type, image_url, description, itinerary, itineraryJson, includes, excludes, published, highlightsJson, inclusionsJson, accommodationsJson, addonsJson, id]
+      'UPDATE packages SET name = $1, duration = $2, price = $3, tag = $4, type = $5, image_url = $6, description = $7, itinerary = $8, itinerary_json = $9, includes = $10, excludes = $11, published = $12, highlights = $13, inclusions = $14, accommodations = $15, addons = $16, country = $17 WHERE id = $18 RETURNING *',
+      [name, duration, price, tag, type, image_url, description, itinerary, itineraryJson, includes, excludes, published, highlightsJson, inclusionsJson, accommodationsJson, addonsJson, country || '', id]
     );
 
     if (result.rows[0]) {

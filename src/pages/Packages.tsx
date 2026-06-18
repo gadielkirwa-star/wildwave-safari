@@ -26,6 +26,7 @@ type DetailedPackage = {
   inclusions?: string[];
   exclusions?: string[];
   addOns?: string[];
+  country?: string | null;
 };
 
 const PACKAGES: DetailedPackage[] = [
@@ -214,6 +215,16 @@ const AccordionItem = ({ day, isOpen, onClick }: { day: ItineraryDay, isOpen: bo
   );
 };
 
+const FLAG_MAP: Record<string, string> = {
+  'Kenya': '🇰🇪',
+  'Tanzania': '🇹🇿',
+  'Uganda': '🇺🇬',
+  'Rwanda': '🇷🇼',
+  'Burundi': '🇧🇮',
+  'South Sudan': '🇸🇸',
+  'DR Congo': '🇨🇩'
+};
+
 const Packages = () => {
   useSEO({
     title: "Safari Packages | WildWave Safaris",
@@ -286,6 +297,7 @@ const Packages = () => {
             inclusions: inclusions.length > 0 ? inclusions : undefined,
             exclusions: exclusions.length > 0 ? exclusions : undefined,
             addOns: pkg.addons && pkg.addons.length > 0 ? pkg.addons : undefined,
+            country: pkg.country || null,
           };
         });
         setDisplayPackages(mapped);
@@ -338,8 +350,17 @@ const Packages = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-8 left-8 right-8">
-                    <div className="flex items-center gap-3 text-[#D4A84B] mb-3 font-['Space_Mono',monospace] text-xs font-bold tracking-widest uppercase">
-                      <Calendar className="w-4 h-4" /> {pkg.duration}
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1.5 text-[#D4A84B] mb-3 font-['Space_Mono',monospace] text-xs font-bold tracking-widest uppercase">
+                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {pkg.duration}</span>
+                      {pkg.country && (
+                        <>
+                          <span className="text-white/40">•</span>
+                          <span className="flex items-center gap-1">
+                            <span className="text-base leading-none">{FLAG_MAP[pkg.country] || ''}</span>
+                            <span>{pkg.country}</span>
+                          </span>
+                        </>
+                      )}
                     </div>
                     <h2 className="text-3xl md:text-4xl font-['Playfair_Display',serif] font-bold text-white leading-tight">
                       {pkg.name}
