@@ -236,6 +236,7 @@ const Packages = () => {
   const [openAccordionIds, setOpenAccordionIds] = useState<Record<string, number>>({
     coastal: 0, mara: 0, nakuru: 0, funnel: 0
   });
+  const [selectedTiers, setSelectedTiers] = useState<Record<string, 'budget' | 'midRange' | 'luxury'>>({});
 
   useEffect(() => {
     fetchPackages()
@@ -398,23 +399,46 @@ const Packages = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                  {/* Accommodations */}
-                  <div className="bg-white p-6 rounded-xl border border-[#E5DFD3] shadow-sm">
-                    <h4 className="text-sm font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-4">Accommodations</h4>
-                    <ul className="space-y-3">
-                      <li className="flex flex-col">
-                        <span className="text-xs uppercase tracking-wider text-[#C1440E] font-bold">Budget</span>
-                        <span className="text-[#1A1208] text-sm">{pkg.accommodations.budget}</span>
-                      </li>
-                      <li className="flex flex-col">
-                        <span className="text-xs uppercase tracking-wider text-[#C1440E] font-bold">Mid-Range</span>
-                        <span className="text-[#1A1208] text-sm">{pkg.accommodations.midRange}</span>
-                      </li>
-                      <li className="flex flex-col">
-                        <span className="text-xs uppercase tracking-wider text-[#C1440E] font-bold">Luxury</span>
-                        <span className="text-[#1A1208] text-sm">{pkg.accommodations.luxury}</span>
-                      </li>
-                    </ul>
+                  {/* Accommodations with Tier Selection */}
+                  <div className="bg-white p-6 rounded-xl border border-[#E5DFD3] shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-sm font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-4">Safari Tier</h4>
+                      
+                      {/* Interactive Tier Selection Buttons */}
+                      <div className="flex p-1 bg-[#F5EFE4] rounded-lg mb-6 border border-[#E5DFD3]">
+                        {(['budget', 'midRange', 'luxury'] as const).map((tier) => {
+                          const active = (selectedTiers[pkg.id] || 'midRange') === tier;
+                          const label = tier === 'budget' ? 'Budget' : tier === 'midRange' ? 'Mid-Range' : 'Luxury';
+                          return (
+                            <button
+                              key={tier}
+                              onClick={() => setSelectedTiers(prev => ({ ...prev, [pkg.id]: tier }))}
+                              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-300 ${
+                                active 
+                                  ? 'bg-[#C1440E] text-white shadow-md' 
+                                  : 'text-[#6B5744] hover:text-[#1A1208] hover:bg-[#E5DFD3]/30'
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Display Accommodation Details for Selected Tier */}
+                      <div className="space-y-2 min-h-[90px] border-l-2 border-[#D4A84B] pl-4">
+                        <span className="text-xs uppercase tracking-wider text-[#C1440E] font-bold">
+                          {(selectedTiers[pkg.id] || 'midRange') === 'budget' && 'Budget Lodge Option'}
+                          {(selectedTiers[pkg.id] || 'midRange') === 'midRange' && 'Mid-Range Lodge Option'}
+                          {(selectedTiers[pkg.id] || 'midRange') === 'luxury' && 'Luxury Lodge Option'}
+                        </span>
+                        <p className="text-[#1A1208] text-sm md:text-base font-medium leading-relaxed">
+                          {(selectedTiers[pkg.id] || 'midRange') === 'budget' && pkg.accommodations.budget}
+                          {(selectedTiers[pkg.id] || 'midRange') === 'midRange' && pkg.accommodations.midRange}
+                          {(selectedTiers[pkg.id] || 'midRange') === 'luxury' && pkg.accommodations.luxury}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Highlights, Inclusions, Exclusions & Add-Ons */}
@@ -477,7 +501,7 @@ const Packages = () => {
                   </div>
                 </div>
 
-                <Link to="/contact">
+                <Link to={`/contact?package=${encodeURIComponent(pkg.name)}&tier=${selectedTiers[pkg.id] || 'midRange'}`}>
                   <Button className="w-full md:w-auto bg-[#1A1208] text-white hover:bg-[#C1440E] px-8 py-6 rounded text-sm uppercase tracking-widest font-['Space_Mono',monospace] transition-colors gap-3">
                     Inquire About This Package <ArrowRight className="w-4 h-4" />
                   </Button>

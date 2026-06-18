@@ -33,6 +33,19 @@ const Contact = () => {
 
   useEffect(() => {
     fetchContactInfo();
+
+    // Parse URL search parameters to pre-fill package and tier info
+    const params = new URLSearchParams(window.location.search);
+    const packageName = params.get("package");
+    const tier = params.get("tier");
+    if (packageName) {
+      const tierLabel = tier === "budget" ? "Budget" : tier === "luxury" ? "Luxury" : "Mid-Range";
+      setFormData(prev => ({
+        ...prev,
+        destination: packageName,
+        message: `I would like to inquire about the "${packageName}" package (${tierLabel} tier).`
+      }));
+    }
   }, []);
 
   const fetchContactInfo = async () => {
