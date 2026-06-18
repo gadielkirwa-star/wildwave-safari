@@ -12,6 +12,16 @@ const uploadsDir = path.resolve(__dirname, '../../uploads');
 
 fs.mkdirSync(uploadsDir, { recursive: true });
 
+// Self-heal packages schema if country column is missing
+const ensurePackageCountryColumn = async () => {
+  try {
+    await pool.query('ALTER TABLE packages ADD COLUMN IF NOT EXISTS country VARCHAR(100)');
+  } catch (error) {
+    console.error('Failed to run package country migration:', error);
+  }
+};
+ensurePackageCountryColumn();
+
 const getUploadFilenameFromRef = (rawRef) => {
   const value = String(rawRef || '').trim();
   if (!value) return null;
