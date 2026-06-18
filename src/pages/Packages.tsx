@@ -233,20 +233,37 @@ const Packages = () => {
         const mapped: DetailedPackage[] = data.map((pkg) => {
           // Parse itinerary JSON if available, else try text
           let itinerary: ItineraryDay[] = [];
-          if (pkg.itinerary_json && Array.isArray(pkg.itinerary_json)) {
+          if (pkg.itinerary_json && Array.isArray(pkg.itinerary_json) && pkg.itinerary_json.length > 0) {
             itinerary = pkg.itinerary_json.map((d) => ({
               day: `Day ${d.day}`,
               title: d.title,
               activities: d.description ? [d.description] : [],
             }));
           } else if (pkg.itinerary) {
-            // Fallback: split text itinerary by newline
-            itinerary = pkg.itinerary.split(/\n+/).filter(Boolean).map((line, i) => ({
-              day: `Day ${i + 1}`,
-              title: line,
-              activities: [],
-            }));
+            // Fallback: split text itinerary by pipe or newline
+            itinerary = pkg.itinerary.split(/[|\n]+/).filter(Boolean).map((line, i) => {
+              const dayMatch = line.match(/^Day\s*([\d\-\s–to]+)[:.-]?\s*(.*)$/i);
+              let dayStr = `Day ${i + 1}`;
+              let rest = line;
+              if (dayMatch) {
+                dayStr = `Day ${dayMatch[1].trim()}`;
+                rest = dayMatch[2].trim();
+              }
+              let title = rest;
+              let activity = '';
+              const separatorMatch = rest.match(/^(.*?)\s*(?:[\–\-\—]\s+|\s+[\–\-\—]|\s*[:]\s*)(.*)$/);
+              if (separatorMatch) {
+                title = separatorMatch[1].trim();
+                activity = separatorMatch[2].trim();
+              }
+              return {
+                day: dayStr,
+                title: title || rest,
+                activities: activity ? [activity] : [title || rest],
+              };
+            });
           }
+
 
           const inclusions = pkg.inclusions || (pkg.includes ? pkg.includes.split(/[,\n]+/).map(s => s.trim()).filter(Boolean) : []);
           const exclusions = pkg.excludes ? pkg.excludes.split(/[,\n]+/).map(s => s.trim()).filter(Boolean) : [];

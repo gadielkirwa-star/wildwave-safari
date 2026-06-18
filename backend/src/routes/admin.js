@@ -457,6 +457,55 @@ router.put('/contact-settings', authenticate, async (req, res) => {
   }
 });
 
+// Helper to parse itinerary text into JSON structure
+const parseItineraryText = (text) => {
+  if (!text || typeof text !== 'string') return [];
+  
+  let lines = [];
+  if (text.includes('|') || text.includes('\n')) {
+    lines = text.split(/[|\n]+/).map(line => line.trim()).filter(Boolean);
+  } else {
+    // Split by position before word "Day" (lookahead match)
+    lines = text.split(/(?=\bDay\b)/i).map(line => line.trim()).filter(Boolean);
+    // Remove trailing period from each line
+    lines = lines.map(line => line.replace(/\.+$/, '').trim());
+  }
+  
+  return lines.map((line, index) => {
+    // Matches "Day 1:", "Day 1-2:", "Day 1 -", "Day 1", etc.
+    const dayMatch = line.match(/^Day\s*([\d\-\s–to]+)[:.-]?\s*(.*)$/i);
+    let dayStr = String(index + 1);
+    let rest = line;
+    
+    if (dayMatch) {
+      dayStr = dayMatch[1].trim();
+      rest = dayMatch[2].trim();
+    }
+    
+    // Now split the rest by first "-" or ":" to separate title and description
+    let title = rest;
+    let description = '';
+    
+    const separatorMatch = rest.match(/^(.*?)\s*(?:[\–\-\—]\s+|\s+[\–\-\—]|\s*[:]\s*)(.*)$/);
+    if (separatorMatch) {
+      title = separatorMatch[1].trim();
+      description = separatorMatch[2].trim();
+    }
+    
+    // Ensure day is numeric if possible, otherwise extract first number or use index
+    let dayNum = parseInt(dayStr, 10);
+    if (isNaN(dayNum)) {
+      dayNum = index + 1;
+    }
+    
+    return {
+      day: dayNum,
+      title: title || `Day ${dayStr} Activities`,
+      description: description || title || rest
+    };
+  });
+};
+
 // Packages
 router.get('/packages', authenticate, async (req, res) => {
   try {
@@ -471,10 +520,11 @@ router.get('/packages', authenticate, async (req, res) => {
 router.post('/packages', authenticate, async (req, res) => {
   try {
     const { name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published } = req.body;
+    const itineraryJson = JSON.stringify(parseItineraryText(itinerary));
     
     const result = await pool.query(
-      'INSERT INTO packages (name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-      [name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published !== false]
+      'INSERT INTO packages (name, duration, price, tag, type, image_url, description, itinerary, itinerary_json, includes, excludes, published) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+      [name, duration, price, tag, type, image_url, description, itinerary, itineraryJson, includes, excludes, published !== false]
     );
 
     // Keep public destinations in sync when package name matches destination name.
@@ -491,10 +541,11 @@ router.put('/packages/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published } = req.body;
+    const itineraryJson = JSON.stringify(parseItineraryText(itinerary));
     
     const result = await pool.query(
-      'UPDATE packages SET name = $1, duration = $2, price = $3, tag = $4, type = $5, image_url = $6, description = $7, itinerary = $8, includes = $9, excludes = $10, published = $11 WHERE id = $12 RETURNING *',
-      [name, duration, price, tag, type, image_url, description, itinerary, includes, excludes, published, id]
+      'UPDATE packages SET name = $1, duration = $2, price = $3, tag = $4, type = $5, image_url = $6, description = $7, itinerary = $8, itinerary_json = $9, includes = $10, excludes = $11, published = $12 WHERE id = $13 RETURNING *',
+      [name, duration, price, tag, type, image_url, description, itinerary, itineraryJson, includes, excludes, published, id]
     );
 
     if (result.rows[0]) {
@@ -508,6 +559,7 @@ router.put('/packages/:id', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Failed to update package' });
   }
 });
+
 
 router.delete('/packages/:id', authenticate, async (req, res) => {
   try {
