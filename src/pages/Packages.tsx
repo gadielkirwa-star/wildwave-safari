@@ -426,12 +426,7 @@ const Packages = () => {
                       </div>
 
                       {/* Display Accommodation Details for Selected Tier */}
-                      <div className="space-y-2 min-h-[90px] border-l-2 border-[#D4A84B] pl-4">
-                        <span className="text-xs uppercase tracking-wider text-[#C1440E] font-bold">
-                          {(selectedTiers[pkg.id] || 'midRange') === 'budget' && 'Budget Lodge Option'}
-                          {(selectedTiers[pkg.id] || 'midRange') === 'midRange' && 'Mid-Range Lodge Option'}
-                          {(selectedTiers[pkg.id] || 'midRange') === 'luxury' && 'Luxury Lodge Option'}
-                        </span>
+                      <div className="min-h-[60px] border-l-2 border-[#D4A84B] pl-4 flex items-center">
                         <p className="text-[#1A1208] text-sm md:text-base font-medium leading-relaxed">
                           {(selectedTiers[pkg.id] || 'midRange') === 'budget' && pkg.accommodations.budget}
                           {(selectedTiers[pkg.id] || 'midRange') === 'midRange' && pkg.accommodations.midRange}
