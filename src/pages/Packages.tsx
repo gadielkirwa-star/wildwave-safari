@@ -396,11 +396,11 @@ const Packages = () => {
                     </ul>
                   </div>
 
-                  {/* Highlights / Inclusions */}
-                  <div className="bg-white p-6 rounded-xl border border-[#E5DFD3] shadow-sm">
-                    {pkg.highlights ? (
-                      <>
-                        <h4 className="text-sm font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-4">Highlights</h4>
+                  {/* Highlights, Inclusions, Exclusions & Add-Ons */}
+                  <div className="bg-white p-6 rounded-xl border border-[#E5DFD3] shadow-sm space-y-6">
+                    {pkg.highlights && pkg.highlights.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-3">Highlights</h4>
                         <ul className="space-y-2">
                           {pkg.highlights.map((h, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm text-[#1A1208]">
@@ -409,10 +409,12 @@ const Packages = () => {
                             </li>
                           ))}
                         </ul>
-                      </>
-                    ) : pkg.inclusions ? (
-                      <>
-                        <h4 className="text-sm font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-4">Included</h4>
+                      </div>
+                    )}
+
+                    {pkg.inclusions && pkg.inclusions.length > 0 && (
+                      <div className={pkg.highlights && pkg.highlights.length > 0 ? "pt-4 border-t border-[#E5DFD3]" : ""}>
+                        <h4 className="text-sm font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-3">Included</h4>
                         <ul className="space-y-2">
                           {pkg.inclusions.map((inc, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm text-[#1A1208]">
@@ -421,18 +423,30 @@ const Packages = () => {
                             </li>
                           ))}
                         </ul>
-                      </>
-                    ) : null}
-                    
-                    {(pkg.addOns || pkg.exclusions) && (
-                      <div className="mt-6 pt-4 border-t border-[#E5DFD3]">
-                        <h4 className="text-xs font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-3">
-                          {pkg.addOns ? "Premium Add-Ons" : "Exclusions"}
-                        </h4>
+                      </div>
+                    )}
+
+                    {pkg.exclusions && pkg.exclusions.length > 0 && (
+                      <div className="pt-4 border-t border-[#E5DFD3]">
+                        <h4 className="text-xs font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-2">Exclusions</h4>
                         <ul className="space-y-2 text-sm text-[#6B5744]">
-                          {(pkg.addOns || pkg.exclusions)?.map((item, i) => (
+                          {pkg.exclusions.map((item, i) => (
                             <li key={i} className="flex items-start gap-2">
-                              {pkg.exclusions ? <X className="w-3.5 h-3.5 text-[#C1440E] shrink-0 mt-0.5" /> : <div className="w-1.5 h-1.5 rounded-full bg-[#D4A84B] mt-1.5 shrink-0" />}
+                              <X className="w-3.5 h-3.5 text-[#C1440E] shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {pkg.addOns && pkg.addOns.length > 0 && (
+                      <div className="pt-4 border-t border-[#E5DFD3]">
+                        <h4 className="text-xs font-['Space_Mono',monospace] font-bold uppercase tracking-widest text-[#6B5744] mb-2">Premium Add-Ons</h4>
+                        <ul className="space-y-2 text-sm text-[#6B5744]">
+                          {pkg.addOns.map((item, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#D4A84B] mt-1.5 shrink-0" />
                               <span>{item}</span>
                             </li>
                           ))}
